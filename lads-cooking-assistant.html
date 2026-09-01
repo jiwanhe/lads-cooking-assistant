@@ -52,7 +52,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC','PingFang TC','
 .ab{width:28px;height:28px;border-radius:7px;border:none;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--pill);color:var(--txt);font-family:inherit;transition:background .15s}
 .ab:hover:not(:disabled){background:var(--bg2)}.ab:disabled{background:#f5f5f5;color:#ccc;cursor:not-allowed}
 .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:10px}
-.rc{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,.05);border-left:4px solid #ccc;transition:all .2s}
+.rc{background:#fff;border-radius:12px;padding:12px 14px 40px;box-shadow:0 2px 8px rgba(0,0,0,.05);border-left:4px solid #ccc;transition:all .2s;position:relative}
 .rc.ok{border-left-color:#6BA368}.rc.no{opacity:.6}
 .rc-hd{display:flex;justify-content:space-between;align-items:center}
 .rc-nm{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
@@ -111,19 +111,74 @@ input[type=file]{display:none}
 .help-section .tip{background:var(--pill);border-radius:8px;padding:10px 14px;font-size:12px;color:#666;margin-top:8px;line-height:1.7}
 .help-section .tip::before{content:'💡 ';font-size:14px}
 .help-section .key{display:inline-block;background:var(--bg2);padding:1px 8px;border-radius:4px;font-size:12px;font-weight:600;color:var(--acD);margin:0 2px}
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+.sidebar-overlay.open{opacity:1;pointer-events:auto}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:280px;background:#fff;z-index:201;transform:translateX(-100%);transition:transform .25s ease;box-shadow:4px 0 20px rgba(0,0,0,.1);display:flex;flex-direction:column}
+.sidebar.open{transform:translateX(0)}
+.sb-hd{padding:20px 18px 14px;border-bottom:1px solid var(--bg2)}
+.sb-hd h3{font-size:15px;color:var(--acD);margin-bottom:4px}
+.sb-hd p{font-size:11px;color:#aaa}
+.sb-list{flex:1;overflow-y:auto;padding:8px}
+.sb-item{display:flex;align-items:center;padding:10px 12px;border-radius:10px;cursor:pointer;transition:background .15s;gap:10px;margin-bottom:2px}
+.sb-item:hover{background:var(--pill)}
+.sb-item.active{background:var(--acL)}
+.sb-item .sb-icon{width:32px;height:32px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.sb-item.active .sb-icon{background:var(--acD);color:#fff}
+.sb-item .sb-info{flex:1;min-width:0}
+.sb-item .sb-name{font-size:13px;font-weight:600;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-item.active .sb-name{color:var(--acD)}
+.sb-item .sb-meta{font-size:10px;color:#bbb;margin-top:2px}
+.sb-item .sb-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.sb-item:hover .sb-actions{opacity:1}
+.sb-act{width:24px;height:24px;border:none;border-radius:6px;background:transparent;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.sb-act:hover{background:var(--bg2)}
+.sb-foot{padding:10px 12px;border-top:1px solid var(--bg2)}
+.sb-add{width:100%;padding:9px;border-radius:10px;border:1px dashed var(--bdr);background:transparent;color:var(--acD);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.sb-add:hover{background:var(--pill);border-color:var(--acD)}
+.prof-btn{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:8px;border:1px solid #ddd;background:#fafafa;color:#555;font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.prof-btn:hover{border-color:var(--acD);color:var(--acD)}
+.prof-btn .prof-dot{width:8px;height:8px;border-radius:50%;background:var(--acD)}
+.prof-tag{font-size:11px;color:var(--acD);font-weight:600;margin-bottom:4px}
+.cook-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bg2)}
+.cook-row:last-child{border-bottom:none}
+.cook-row .ck-name{flex:1;font-size:13px;font-weight:600;min-width:0}
+.cook-row .ck-sel{display:flex;gap:6px;align-items:center}
+.cook-row select{padding:5px 8px;border:1px solid var(--bdr);border-radius:6px;font-size:12px;font-family:inherit;background:#fff;outline:none}
+.cook-row .ck-stock{font-size:10px;color:#aaa}
+.cook-est{margin-top:10px;padding:10px;background:var(--pill);border-radius:8px;font-size:12px;color:#666;text-align:center}
+.cook-est b{color:#b8960c}
+.rc-cook{position:absolute;right:12px;bottom:12px;padding:5px 12px;border-radius:8px;border:1px solid var(--bdr);background:#fff;color:var(--acD);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.rc-cook:hover{background:var(--acD);color:#fff;border-color:var(--acD)}
+.mgmt-profiles{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--bg2)}
+.mgmt-pf{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .15s;margin-bottom:2px}
+.mgmt-pf:hover{background:var(--pill)}
+.mgmt-pf.active{background:var(--acL)}
+.mgmt-pf .pf-dot{width:28px;height:28px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.mgmt-pf.active .pf-dot{background:var(--acD);color:#fff}
+.mgmt-pf .pf-name{flex:1;font-size:13px;font-weight:600}
+.mgmt-pf.active .pf-name{color:var(--acD)}
+.mgmt-pf .pf-acts{display:flex;gap:4px}
+.mgmt-pf .pf-acts button{border:none;background:transparent;cursor:pointer;font-size:12px;padding:2px 4px;border-radius:4px}
+.mgmt-pf .pf-acts button:hover{background:var(--bg2)}
 </style>
 </head>
 <body>
+<div class="sidebar-overlay" id="sb-overlay" onclick="closeSB()"></div>
+<div class="sidebar" id="sb-panel">
+  <div class="sb-hd"><h3>📁 存檔管理</h3><p>切換帳號或新增存檔</p></div>
+  <div class="sb-list" id="sb-list"></div>
+  <div class="sb-foot"><button class="sb-add" onclick="addProfile()">＋ 新增存檔</button></div>
+</div>
 <svg style="position:absolute;width:0;height:0"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter></svg>
 <div class="app">
   <div class="header">
     <div class="header-left">
       <h1>戀與深空 · 廚藝助手</h1>
-      <p>廚藝等級 Lv12｜2026/9/1 更新</p>
+      <p>廚藝等級 Lv12｜2026/9/1 更新｜<span id="prof-label" style="color:var(--acD);font-weight:600"></span></p>
     </div>
     <div class="header-right">
       <div class="theme-dots" id="theme-dots"></div>
-      <button class="hdr-btn" onclick="showIO()">📥 導入/導出</button>
+      <button class="hdr-btn" onclick="showMgmt()">📁 存檔管理</button>
       <button class="hdr-btn" onclick="showAdd()">＋ 自訂</button>
     </div>
   </div>
@@ -233,13 +288,29 @@ function getCC(){const m={...CC_};customIng.forEach(i=>{if(!m[i.c])m[i.c]="#999"
 function getCI(){const m={...CI_};customIng.forEach(i=>{if(!m[i.c])m[i.c]="📦"});return m}
 function getRI(){const m={...RI_};customRec.forEach(r=>{if(!m[r.cat])m[r.cat]="🍽️"});return m}
 
+// ═══ PROFILE MANAGEMENT ═════════════════════════════════════════════
+let profiles=[],activeId=null;
+
+function loadProfiles(){
+  try{const p=localStorage.getItem('lads-profiles');if(p)profiles=JSON.parse(p);
+    activeId=localStorage.getItem('lads-active')}catch(e){}
+  if(!profiles.length){profiles=[{id:'p1',name:'存檔 1'}];activeId='p1';saveProfiles()}
+  if(!activeId||!profiles.find(p=>p.id===activeId)){activeId=profiles[0].id;saveProfiles()}
+}
+function saveProfiles(){try{localStorage.setItem('lads-profiles',JSON.stringify(profiles));localStorage.setItem('lads-active',activeId)}catch(e){}}
+function pfx(){return`lads-${activeId}-`}
+
 function initState(){
   inv=BUILTIN_ING.map(d=>{const s=d.c==="調味粉"?{3:0,2:0,1:0,0:0}:{5:0,4:0,3:0,2:0,1:0};return{...d,s}});prog={};customIng=[];customRec=[];
   allRec().forEach(r=>{if(!prog[r.name])prog[r.name]={maxStar:0,unlocked:[]}});
 }
-function save(){try{localStorage.setItem('lads-inv',JSON.stringify(inv));localStorage.setItem('lads-prog',JSON.stringify(prog));localStorage.setItem('lads-cing',JSON.stringify(customIng));localStorage.setItem('lads-crec',JSON.stringify(customRec))}catch(e){}}
-function load(){try{const a=localStorage.getItem('lads-inv'),b=localStorage.getItem('lads-prog'),c=localStorage.getItem('lads-cing'),d=localStorage.getItem('lads-crec');
+function save(){try{const p=pfx();localStorage.setItem(p+'inv',JSON.stringify(inv));localStorage.setItem(p+'prog',JSON.stringify(prog));localStorage.setItem(p+'cing',JSON.stringify(customIng));localStorage.setItem(p+'crec',JSON.stringify(customRec))}catch(e){}}
+function load(){try{const p=pfx();const a=localStorage.getItem(p+'inv'),b=localStorage.getItem(p+'prog'),c=localStorage.getItem(p+'cing'),d=localStorage.getItem(p+'crec');
   if(a)inv=JSON.parse(a);if(b)prog=JSON.parse(b);if(c)customIng=JSON.parse(c);if(d)customRec=JSON.parse(d)}catch(e){}}
+function migrateOld(){
+  try{const old=localStorage.getItem('lads-inv');if(old&&!localStorage.getItem('lads-p1-inv')){
+    ['inv','prog','cing','crec'].forEach(k=>{const v=localStorage.getItem('lads-'+k);if(v)localStorage.setItem('lads-p1-'+k,v)});
+    ['lads-inv','lads-prog','lads-cing','lads-crec'].forEach(k=>localStorage.removeItem(k))}}catch(e){}}
 function ensureProg(){allRec().forEach(r=>{if(!prog[r.name])prog[r.name]={maxStar:0,unlocked:[]}})}
 const tot=s=>s?Object.values(s).reduce((a,b)=>a+b,0):0;
 const strs=n=>"★".repeat(n);
@@ -281,14 +352,14 @@ el.innerHTML=`
   <h3><span>🥩</span>食材庫存</h3>
   <p>管理你目前擁有的所有食材及其星級數量。</p>
   <div class="step"><div class="step-num">1</div><div class="step-txt">透過上方的<span class="key">分類標籤</span>或<span class="key">搜尋框</span>快速找到食材。</div></div>
-  <div class="step"><div class="step-num">2</div><div class="step-txt">點擊食材卡片展開，可以看到各星級（★～★★★★★）的庫存數量。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-txt">點擊食材卡片展開，可以看到各星級的庫存數量。</div></div>
   <div class="step"><div class="step-num">3</div><div class="step-txt">使用<span class="key">＋</span>和<span class="key">−</span>按鈕手動調整每個星級的數量。</div></div>
-  <div class="tip">「水」為無限供應的食材，不需要管理庫存。調味粉（苦苣粉、爆辣粉、橙皮粉、樹莓粉、菌菇粉）用於解鎖風味菜品。</div>
+  <div class="tip">「水」為無限供應的食材，不需要管理庫存。一般食材星級為 ★～★★★★★，調味粉星級為 ☆（無星）～★★★。</div>
 </div>
 
 <div class="help-section">
-  <h3><span>🍳</span>食譜篩選</h3>
-  <p>根據你的庫存即時篩選可以製作的菜品，並直接在卡片上更新解鎖進度。</p>
+  <h3><span>🍳</span>食譜篩選與製作</h3>
+  <p>根據你的庫存即時篩選可以製作的菜品，並直接在卡片上更新解鎖進度或製作菜品。</p>
   <div class="step"><div class="step-num">1</div><div class="step-txt"><span class="key">分類篩選</span>：按主食、配菜、湯羹、甜點、飲品過濾。</div></div>
   <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">狀態篩選</span>：可製作（庫存足夠）、缺食材、未滿星、有未解鎖風味。</div></div>
   <div class="step"><div class="step-num">3</div><div class="step-txt"><span class="key">排序方式</span>：<br>
@@ -296,10 +367,15 @@ el.innerHTML=`
     ・升星優先：把「目前低星但庫存能做更高星」的菜排前面，標示<span class="key">可升N星</span><br>
     ・可解鎖風味優先：根據你有的調味粉，把能解鎖最多新風味的菜排前面<br>
     ・名稱排序：按筆劃排列</div></div>
-  <div class="step"><div class="step-num">4</div><div class="step-txt"><span class="key">更新進度</span>：每張食譜卡片底部可以直接點擊星星設定已達星級，點擊風味標籤切換解鎖狀態。<br>
+  <div class="step"><div class="step-num">4</div><div class="step-txt"><span class="key">手動更新進度</span>：每張食譜卡片底部可以直接點擊星星設定已達星級，點擊風味標籤切換解鎖狀態。<br>
     ・🔓 表示你有對應的調味粉，可以解鎖<br>
     ・🔒 表示缺少調味粉</div></div>
-  <div class="tip">使用「可解鎖風味優先」排序時，如果所有調味粉庫存都是 0，會顯示提示訊息。</div>
+  <div class="step"><div class="step-num">5</div><div class="step-txt"><span class="key">🍳 製作一份</span>：庫存足夠的菜品右下角會出現此按鈕，點擊後彈窗確認：<br>
+    ・選擇要製作的<span class="key">風味</span>（原味或特殊風味），選擇風味會額外消耗對應的調味粉<br>
+    ・每項食材可以選擇消耗<span class="key">哪個星級</span>的庫存，預設使用最高星級<br>
+    ・泛用類別（肉類、蔬菜類等）可以選擇使用哪個具體食材<br>
+    ・確認後自動扣除庫存、更新已達星級（如果比之前高）、解鎖風味</div></div>
+  <div class="tip">預估成品星級僅根據投入食材的最低星級推算，實際星級受機率影響。調味粉星級不計入成品星級計算。</div>
 </div>
 
 <div class="help-section">
@@ -308,13 +384,14 @@ el.innerHTML=`
 </div>
 
 <div class="help-section">
-  <h3><span>📥</span>導入 / 導出</h3>
-  <p>支援 Excel 批量匯入匯出，方便初始化資料和備份。</p>
-  <div class="step"><div class="step-num">1</div><div class="step-txt"><span class="key">下載空白範本</span>：取得格式正確的 Excel 檔案，包含「食材庫存」和「食譜進度」兩個工作表。</div></div>
-  <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">填寫範本</span>：食材庫存頁填入各星級數量。食譜進度頁設定已達星級（0-5），風味欄位從下拉選單選擇「已解鎖」或「未解鎖」。標示「—」的風味表示該菜品不支援此風味，無需修改。</div></div>
-  <div class="step"><div class="step-num">3</div><div class="step-txt"><span class="key">導入 Excel</span>：選擇填好的檔案導入，會覆蓋目前的資料。</div></div>
-  <div class="step"><div class="step-num">4</div><div class="step-txt"><span class="key">導出備份</span>：隨時可以將目前的所有資料導出為 Excel，檔名自動帶上日期。</div></div>
-  <div class="tip">導入會覆蓋現有資料，建議先導出備份再操作。</div>
+  <h3><span>📁</span>存檔管理</h3>
+  <p>支援多帳號存檔、Excel 導入導出，統一在右上角<span class="key">📁 存檔管理</span>按鈕中操作。</p>
+  <div class="step"><div class="step-num">1</div><div class="step-txt"><span class="key">多帳號存檔</span>：可以建立多個存檔（例如大號、小號），每個存檔的庫存和食譜進度完全獨立。點擊存檔即可切換，切換時會自動儲存當前資料。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">重命名 / 刪除</span>：每個存檔旁有 ✏️ 重命名和 🗑️ 刪除按鈕，至少保留一個存檔。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-txt"><span class="key">下載空白範本</span>：取得格式正確的 Excel 檔案，包含「食材庫存」和「食譜進度」兩個工作表。食材庫存填入各星級數量，食譜進度設定已達星級（0-5 下拉）和風味解鎖狀態（已解鎖/未解鎖 下拉）。</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-txt"><span class="key">導入 Excel</span>：選擇填好的檔案導入，會覆蓋<b>目前存檔</b>的資料。</div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-txt"><span class="key">導出備份</span>：將目前存檔的所有資料導出為 Excel，檔名自動帶上日期。</div></div>
+  <div class="tip">導入/導出只會影響目前使用中的存檔，不會動到其他存檔的資料。目前使用的存檔名稱會顯示在標題列。</div>
 </div>
 
 <div class="help-section">
@@ -329,12 +406,12 @@ el.innerHTML=`
     ・<span class="key">水果類</span>＝蘋果/葡萄/檸檬任一<br>
     ・<span class="key">水產海鮮類</span>＝蝦/魚任一<br>
     ・限定寫法：<span class="key">肉類(豬肉或牛肉)</span></div></div>
-  <div class="step"><div class="step-num">4</div><div class="step-txt">自訂項目會標示「自訂」標籤，展開後可刪除。自訂資料同樣會包含在 Excel 導出中。</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-txt">自訂項目會標示<span class="key">自訂</span>標籤，展開後可刪除。自訂資料同樣會包含在 Excel 導出中。</div></div>
 </div>
 
 <div class="help-section">
   <h3><span>🎨</span>主題色切換</h3>
-  <p>右上角六個彩色圓點可以切換介面主題色，選擇會自動記住。</p>
+  <p>右上角六個彩色圓點可以切換介面主題色，選擇會自動記住。所有頁面的配色（背景、邊框、標籤、按鈕）會跟著主題色自動調整。</p>
 </div>
 
 <div class="help-section" style="text-align:center;color:#bbb;font-size:12px;box-shadow:none;background:transparent">
@@ -398,6 +475,7 @@ function rRec(){const el=document.getElementById("tab-recipes");const RI=getRI()
     if(r.allFlavors.length){h+=`<div class="fr">`;for(const f of r.allFlavors){const on=p.unlocked.includes(f);const hp=hasPowder(f);
       h+=`<button class="fp ${on?"on":"off"}" style="${on?`background:${FC_[f]||"#999"}`:""}" onclick="togFlav('${r.name}','${f}')" title="${on?"已解鎖":hp?"點擊解鎖":"缺少"+FLAV_POWDER[f]}">${f}${on?"":hp?" 🔓":" 🔒"}</button>`}h+=`</div>`}
     if(r.custom)h+=`<button class="mb d" style="margin-top:8px;font-size:10px;padding:4px 10px" onclick="delRec('${r.name}')">刪除</button>`;
+    if(ok)h+=`<button class="rc-cook" onclick="event.stopPropagation();showCook('${r.name}')">🍳 製作一份</button>`;
     h+=`</div></div>`}
   h+=`</div>`;el.innerHTML=h}
 
@@ -473,22 +551,210 @@ function doAddRec(){const nm=document.getElementById('ar-name').value.trim();let
 function delIng(nm){if(!confirm(`確定刪除食材「${nm}」？`))return;customIng=customIng.filter(i=>i.n!==nm);save();render()}
 function delRec(nm){if(!confirm(`確定刪除菜品「${nm}」？`))return;customRec=customRec.filter(r=>r.name!==nm);delete prog[nm];save();render()}
 
-// ═══ IMPORT/EXPORT ══════════════════════════════════════════════════
-function showIO(){const mr=document.getElementById("mroot");
-  mr.innerHTML=`<div class="mbg" onclick="if(event.target===this)clM()"><div class="modal">
-    <h2>📥 導入 / 導出</h2><p>下載空白範本填寫後導入，或導出目前資料作為備份。導入會覆蓋目前資料。</p>
-    <div class="mbtns">
-      <button class="mb s" onclick="dlTpl()">📄 空白範本</button>
-      <button class="mb s" onclick="dlCur()">💾 導出備份</button>
-      <button class="mb p" onclick="document.getElementById('finput').click()">📥 導入 Excel</button>
-      <button class="mb d" onclick="doReset()">🗑️ 清除資料</button>
-    </div><div class="mbtns"><button class="mb s" onclick="clM()">關閉</button></div></div></div>`}
+// ═══ MANAGEMENT MODAL (PROFILES + IMPORT/EXPORT) ════════════════════
+function showMgmt(){const mr=document.getElementById("mroot");
+  let h=`<div class="mbg" onclick="if(event.target===this)clM()"><div class="modal"><h2>📁 存檔管理</h2>`;
+  // Profiles section
+  h+=`<div class="mgmt-profiles"><p style="font-size:12px;color:#aaa;margin-bottom:8px">切換或管理存檔，每個存檔的資料互相獨立。</p>`;
+  profiles.forEach((p,i)=>{const act=p.id===activeId;
+    h+=`<div class="mgmt-pf${act?" active":""}" onclick="switchProfileM('${p.id}')">
+      <div class="pf-dot">${i+1}</div><div class="pf-name">${p.name}${act?" ✓":""}</div>
+      <div class="pf-acts"><button onclick="event.stopPropagation();renamePM('${p.id}')" title="重命名">✏️</button>${profiles.length>1?`<button onclick="event.stopPropagation();deletePM('${p.id}')" title="刪除">🗑️</button>`:""}</div></div>`});
+  h+=`<button class="sb-add" style="margin-top:8px" onclick="addProfileM()">＋ 新增存檔</button></div>`;
+  // Import/Export section
+  h+=`<h3 style="font-size:14px;color:var(--acD);margin-bottom:10px">📥 導入 / 導出</h3>`;
+  h+=`<p style="font-size:12px;color:#aaa;margin-bottom:10px">操作對象為目前使用的存檔。</p>`;
+  h+=`<div class="mbtns"><button class="mb s" onclick="dlTpl()">📄 空白範本</button><button class="mb s" onclick="dlCur()">💾 導出備份</button><button class="mb p" onclick="document.getElementById('finput').click()">📥 導入 Excel</button><button class="mb d" onclick="doReset()">🗑️ 清除此存檔</button></div>`;
+  h+=`<div class="mbtns" style="margin-top:8px"><button class="mb s" onclick="clM()">關閉</button></div></div></div>`;
+  mr.innerHTML=h}
+
+function switchProfileM(id){if(id===activeId)return;save();activeId=id;saveProfiles();initState();load();ensureProg();updateProfLabel();render();showMgmt()}
+function addProfileM(){const nm=prompt("請輸入存檔名稱：");if(!nm||!nm.trim())return;const id='p'+Date.now();profiles.push({id,name:nm.trim()});saveProfiles();switchProfileM(id)}
+function renamePM(id){const p=profiles.find(x=>x.id===id);if(!p)return;const nm=prompt("請輸入新名稱：",p.name);if(!nm||!nm.trim())return;p.name=nm.trim();saveProfiles();showMgmt()}
+function deletePM(id){if(profiles.length<=1){alert("至少保留一個存檔");return}const p=profiles.find(x=>x.id===id);if(!confirm(`確定刪除「${p.name}」？`))return;
+  const px=`lads-${id}-`;['inv','prog','cing','crec'].forEach(k=>{try{localStorage.removeItem(px+k)}catch(e){}});
+  profiles=profiles.filter(x=>x.id!==id);if(activeId===id){activeId=profiles[0].id;initState();load();ensureProg();render()}saveProfiles();showMgmt()}
+
+// ═══ COOK MODAL ═════════════════════════════════════════════════════
+let cookState=null; // {recipe, slots:[{name,star,options,fixed?,catLabel?}], flavor:"原味"}
+
+function showCook(recipeName){
+  const r=allRec().find(x=>x.name===recipeName);if(!r)return;
+  cookState={recipe:r,slots:[],flavor:"原味"};
+  buildCookSlots();
+  renderCookModal();
+}
+
+function buildCookSlots(){
+  const{recipe,flavor}=cookState;
+  const ai=allIng();
+  const slots=[];
+  const tempUsed={};
+
+  // Ingredient slots
+  for(const req of recipe.ingredients){
+    if(req.type==="sp"&&req.name==="水"){slots.push({name:"水",star:-1,fixed:true});continue}
+    let candidates=[];
+    if(req.type==="sp"){candidates=[req.name]}
+    else{candidates=req.options||CMAP[req.cat]||[]}
+
+    let bestName=null,bestStar=0;
+    for(const cn of candidates){
+      const it=ai.find(i=>i.n===cn);if(!it)continue;
+      const isPowder=it.c==="調味粉";const maxLv=isPowder?3:5;const minLv=isPowder?0:1;
+      for(let l=maxLv;l>=minLv;l--){
+        const avail=(it.s[l]||0)-(tempUsed[cn+'-'+l]||0);
+        if(avail>0&&l>bestStar){bestStar=l;bestName=cn;break}
+      }
+    }
+    if(!bestName)bestName=candidates[0]||"?";
+    tempUsed[bestName+'-'+bestStar]=(tempUsed[bestName+'-'+bestStar]||0)+1;
+
+    const slotOpts=[];
+    for(const cn of candidates){
+      const it=ai.find(i=>i.n===cn);if(!it)continue;
+      const isPowder=it.c==="調味粉";const maxLv=isPowder?3:5;const minLv=isPowder?0:1;
+      for(let l=maxLv;l>=minLv;l--){if((it.s[l]||0)>0)slotOpts.push({name:cn,star:l,stock:it.s[l]})}
+    }
+    slots.push({name:bestName,star:bestStar,options:slotOpts,candidates,catLabel:req.type==="cat"?req.cat:null});
+  }
+
+  // Seasoning powder slot (if not 原味)
+  if(flavor!=="原味"){
+    const powderName=FLAV_POWDER[flavor];
+    if(powderName){
+      const it=ai.find(i=>i.n===powderName);
+      const slotOpts=[];
+      if(it){for(let l=3;l>=0;l--){if((it.s[l]||0)>0)slotOpts.push({name:powderName,star:l,stock:it.s[l]})}}
+      const bestStar=slotOpts.length?slotOpts[0].star:0;
+      slots.push({name:powderName,star:bestStar,options:slotOpts,candidates:[powderName],catLabel:"調味粉",isPowder:true});
+    }
+  }
+
+  cookState.slots=slots;
+}
+
+function renderCookModal(){
+  if(!cookState)return;const{recipe,slots,flavor}=cookState;
+  const mr=document.getElementById("mroot");
+  const ai=allIng();
+
+  // Available flavors for this recipe
+  const availFlavors=["原味",...recipe.allFlavors];
+
+  // Check if selected flavor's powder is available
+  let powderOk=true;
+  if(flavor!=="原味"){
+    const pn=FLAV_POWDER[flavor];
+    const it=ai.find(i=>i.n===pn);
+    if(!it||tot(it.s)<=0)powderOk=false;
+  }
+
+  const ingSlots=slots.filter(s=>!s.isPowder);
+  const powderSlot=slots.find(s=>s.isPowder);
+  const minStar=ingSlots.filter(s=>!s.fixed).map(s=>s.star);
+  const estStar=minStar.length?Math.min(...minStar):0;
+
+  let h=`<div class="mbg" onclick="if(event.target===this){cookState=null;clM()}"><div class="modal">`;
+  h+=`<h2>🍳 製作一份：${recipe.name}</h2>`;
+
+  // Flavor selector
+  if(recipe.allFlavors.length>0){
+    h+=`<div style="margin-bottom:12px"><label style="font-size:12px;color:#888;font-weight:600;margin-bottom:4px;display:block">製作風味</label>`;
+    h+=`<select style="padding:7px 12px;border:1px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;width:100%" onchange="ckChgFlavor(this.value)">`;
+    availFlavors.forEach(f=>{
+      const fp=f!=="原味"?FLAV_POWDER[f]:null;
+      const fpIt=fp?ai.find(i=>i.n===fp):null;
+      const fpStock=fpIt?tot(fpIt.s):0;
+      const label=f==="原味"?f:`${f}（${fp} 庫存 ${fpStock}）`;
+      h+=`<option value="${f}"${f===flavor?" selected":""}${f!=="原味"&&fpStock<=0?" disabled":""}>${label}</option>`;
+    });
+    h+=`</select></div>`;
+  }
+
+  h+=`<p style="font-size:12px;color:#aaa;margin-bottom:6px">選擇消耗的食材與星級，確認後從庫存扣除。</p>`;
+
+  // Ingredient rows
+  ingSlots.forEach((s,idx)=>{
+    if(s.fixed){h+=`<div class="cook-row"><div class="ck-name">水</div><div class="ck-sel"><span style="font-size:12px;color:#aaa">∞ 無限</span></div></div>`;return}
+    h+=`<div class="cook-row"><div class="ck-name">${s.catLabel?`<span style="font-size:10px;color:var(--acD)">${s.catLabel} → </span>`:""}${s.name}</div><div class="ck-sel">`;
+    if(s.candidates&&s.candidates.length>1){
+      h+=`<select onchange="ckChgIng(${idx},this.value)">`;
+      const seen=new Set();
+      s.options.forEach(o=>{if(!seen.has(o.name)){seen.add(o.name);h+=`<option value="${o.name}"${o.name===s.name?" selected":""}>${o.name}</option>`}});
+      h+=`</select>`;
+    }
+    const starOpts=s.options.filter(o=>o.name===s.name);
+    h+=`<select onchange="ckChgStar(${idx},Number(this.value))">`;
+    starOpts.forEach(o=>{h+=`<option value="${o.star}"${o.star===s.star?" selected":""}>${o.star===0?"☆":"★".repeat(o.star)} (${o.stock})</option>`});
+    h+=`</select></div></div>`;
+  });
+
+  // Powder row
+  if(powderSlot){
+    const pidx=slots.indexOf(powderSlot);
+    h+=`<div class="cook-row" style="background:var(--pill);border-radius:8px;padding:8px 10px;margin-top:4px"><div class="ck-name">🧂 ${powderSlot.name}</div><div class="ck-sel">`;
+    if(powderSlot.options.length>0){
+      h+=`<select onchange="ckChgStar(${pidx},Number(this.value))">`;
+      powderSlot.options.forEach(o=>{h+=`<option value="${o.star}"${o.star===powderSlot.star?" selected":""}>${o.star===0?"☆":"★".repeat(o.star)} (${o.stock})</option>`});
+      h+=`</select>`;
+    } else {
+      h+=`<span style="font-size:12px;color:#D94F3B">庫存不足</span>`;
+    }
+    h+=`</div></div>`;
+  }
+
+  h+=`<div class="cook-est">預估成品星級：<b>${estStar===0?"☆":"★".repeat(estStar)}</b>（受機率影響，僅供參考）</div>`;
+
+  const canCook=ingSlots.every(s=>s.fixed||s.options.some(o=>o.name===s.name))&&(!powderSlot||powderSlot.options.length>0);
+  h+=`<div class="mbtns"><button class="mb p"${canCook?"":" disabled style='opacity:.5;cursor:not-allowed'"} onclick="doCook()">✅ 確認製作</button><button class="mb s" onclick="cookState=null;clM()">取消</button></div>`;
+  h+=`</div></div>`;
+  mr.innerHTML=h;
+}
+
+function ckChgFlavor(f){cookState.flavor=f;buildCookSlots();renderCookModal()}
+function ckChgIng(idx,newName){
+  const s=cookState.slots[idx];s.name=newName;
+  const starOpts=s.options.filter(o=>o.name===newName);
+  s.star=starOpts.length?starOpts[0].star:0;
+  renderCookModal();
+}
+function ckChgStar(idx,newStar){cookState.slots[idx].star=newStar;renderCookModal()}
+
+function doCook(){
+  if(!cookState)return;
+  const{recipe,slots,flavor}=cookState;
+  const ai=allIng();
+  // Validate all slots
+  for(const s of slots){
+    if(s.fixed)continue;
+    const it=ai.find(i=>i.n===s.name);
+    if(!it||(it.s[s.star]||0)<=0){alert(`${s.name} 的 ${s.star===0?"☆":"★".repeat(s.star)} 庫存不足！`);return}
+  }
+  // Deduct
+  for(const s of slots){
+    if(s.fixed)continue;
+    const bi=inv.find(i=>i.n===s.name);
+    const ci=customIng.find(i=>i.n===s.name);
+    const it=bi||ci;
+    if(it)it.s[s.star]=Math.max(0,(it.s[s.star]||0)-1);
+  }
+  // Auto update star level (based on ingredient slots only, not powder)
+  const ingSlots=slots.filter(s=>!s.fixed&&!s.isPowder);
+  const minStar=ingSlots.map(s=>s.star);
+  const achieved=minStar.length?Math.min(...minStar):0;
+  const p=gP(recipe.name);
+  if(achieved>p.maxStar)p.maxStar=achieved;
+  // Auto unlock flavor if making a flavored dish
+  if(flavor!=="原味"&&!p.unlocked.includes(flavor))p.unlocked.push(flavor);
+  save();cookState=null;clM();render();
+}
 function clM(){document.getElementById("mroot").innerHTML=""}
-function doReset(){if(!confirm("確定清除所有資料？"))return;initState();save();clM();render()}
+function doReset(){const p=profiles.find(x=>x.id===activeId);if(!confirm(`確定清除「${p?p.name:""}」的所有資料？`))return;initState();save();clM();render()}
 
 function dlTpl(){const wb=XLSX.utils.book_new();
   const d1=[["食材名稱","分類","5星庫存","4星庫存","3星庫存","2星庫存","1星庫存","0星庫存(僅調味粉)"]];
-  allIng().forEach(i=>{const ip=i.c==="調味粉";d1.push([i.n+(i.flavor?`(${i.flavor})`:""),i.c,ip?"—":0,ip?"—":0,0,ip?"—":0,ip?"—":0,ip?0:"—"])});
+  allIng().forEach(i=>{const ip=i.c==="調味粉";d1.push([i.n+(i.flavor?`(${i.flavor})`:""),i.c,ip?"—":0,ip?"—":0,0,0,0,ip?0:"—"])});
   const ws1=XLSX.utils.aoa_to_sheet(d1);ws1["!cols"]=[{wch:16},{wch:10},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:16}];
   XLSX.utils.book_append_sheet(wb,ws1,"食材庫存");
   const d2=[["菜品名稱","分類","食材需求","已達最高星級(0-5)","清苦","爆辣","果香","酸甜","鮮香"]];
@@ -499,7 +765,7 @@ function dlTpl(){const wb=XLSX.utils.book_new();
 
 function dlCur(){const wb=XLSX.utils.book_new();
   const d1=[["食材名稱","分類","5星庫存","4星庫存","3星庫存","2星庫存","1星庫存","0星庫存(僅調味粉)"]];
-  allIng().forEach(i=>{const ip=i.c==="調味粉";d1.push([i.n+(i.flavor?`(${i.flavor})`:""),i.c,ip?"—":(i.s[5]||0),ip?"—":(i.s[4]||0),i.s[3]||0,ip?"—":(i.s[2]||0),ip?"—":(i.s[1]||0),ip?(i.s[0]||0):"—"])});
+  allIng().forEach(i=>{const ip=i.c==="調味粉";d1.push([i.n+(i.flavor?`(${i.flavor})`:""),i.c,ip?"—":(i.s[5]||0),ip?"—":(i.s[4]||0),i.s[3]||0,i.s[2]||0,i.s[1]||0,ip?(i.s[0]||0):"—"])});
   const ws1=XLSX.utils.aoa_to_sheet(d1);ws1["!cols"]=[{wch:16},{wch:10},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:16}];
   XLSX.utils.book_append_sheet(wb,ws1,"食材庫存");
   const d2=[["菜品名稱","分類","食材需求","已達最高星級(0-5)","清苦","爆辣","果香","酸甜","鮮香"]];
@@ -514,7 +780,7 @@ function doImport(e){const file=e.target.files[0];if(!file)return;const reader=n
     if(sn1){XLSX.utils.sheet_to_json(wb.Sheets[sn1]).forEach(row=>{
       const rn=String(row["食材名稱"]||"").replace(/\(.+?\)$/,"").trim();const it=allIng().find(i=>i.n===rn);
       if(it){it.s[5]=Number(row["5星庫存"])||0;it.s[4]=Number(row["4星庫存"])||0;it.s[3]=Number(row["3星庫存"])||0;it.s[2]=Number(row["2星庫存"])||0;it.s[1]=Number(row["1星庫存"])||0;
-        if(it.c==="調味粉"){it.s[0]=Number(row["0星庫存(僅調味粉)"])||0;it.s[5]=0;it.s[4]=0;it.s[2]=0;it.s[1]=0}
+        if(it.c==="調味粉"){it.s[0]=Number(row["0星庫存(僅調味粉)"])||0;it.s[5]=0;it.s[4]=0}
         const bi=inv.find(i=>i.n===rn);if(bi)bi.s={...it.s};const ci=customIng.find(i=>i.n===rn);if(ci)ci.s={...it.s};n++}})}
     const sn2=wb.SheetNames.find(s=>s.includes("食譜"));
     if(sn2){XLSX.utils.sheet_to_json(wb.Sheets[sn2]).forEach(row=>{
@@ -524,9 +790,17 @@ function doImport(e){const file=e.target.files[0];if(!file)return;const reader=n
     save();render();clM();alert(`導入完成！共 ${n} 筆。`)}catch(err){alert("導入失敗："+err.message)}e.target.value=""};
   reader.readAsArrayBuffer(file)}
 
+// ═══ SIDEBAR (legacy - now in management modal) ════════════════════
+function openSB(){}function closeSB(){}function renderSB(){}
+function updateProfLabel(){const p=profiles.find(x=>x.id===activeId);const el=document.getElementById('prof-label');if(el)el.textContent=p?p.name:""}
+function switchProfile(id){switchProfileM(id)}
+function addProfile(){addProfileM()}
+function renameProfile(id){renamePM(id)}
+function deleteProfile(id){deletePM(id)}
+
 // ═══ INIT ═══════════════════════════════════════════════════════════
 document.querySelectorAll(".tab-btn").forEach(b=>b.addEventListener("click",()=>swTab(b.dataset.tab)));
-initState();load();ensureProg();initThemes();render();
+migrateOld();loadProfiles();initState();load();ensureProg();initThemes();updateProfLabel();render();
 </script>
 </body>
 </html>
