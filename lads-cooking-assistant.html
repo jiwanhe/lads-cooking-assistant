@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>戀與深空 · 廚藝助手（目前只更新到廚藝等級Lv12，2026/9/1更新）</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#FAF2F4;--bg2:#F5E8EB;--ac:#efa1ad;--acD:#c4636f;--acL:#f8dce1;--pill:#faf0f2;--bdr:#ecd0d6;--txt:#2a2a2a;--txt2:#999}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;transition:background .3s}
+.app{max-width:1100px;margin:0 auto}
+.header{position:relative;background:linear-gradient(135deg,var(--acL),#fff,var(--acL));padding:18px 24px 14px;color:#333;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:2px solid var(--ac);transition:all .3s;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;filter:url(#noise);opacity:.06;pointer-events:none}
+.header>*{position:relative;z-index:1}
+.header-left h1{font-size:20px;font-weight:800;letter-spacing:1px;color:var(--acD);transition:color .3s}
+.header-left p{font-size:11px;color:#aaa;margin-top:3px}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.theme-dots{display:flex;gap:6px}
+.tdot{width:22px;height:22px;border-radius:50%;border:2px solid #e0e0e0;cursor:pointer;transition:all .2s;flex-shrink:0}
+.tdot:hover{transform:scale(1.15)}.tdot.active{border-color:var(--ac);box-shadow:0 0 0 2px var(--acL)}
+.hdr-btn{padding:6px 12px;border-radius:8px;border:1px solid #ddd;background:#fafafa;color:#555;font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.hdr-btn:hover{border-color:var(--acD);color:var(--acD)}
+.tabs{display:flex;background:var(--bg2);padding:0 4px;transition:background .3s}
+.tab-btn{flex:0 1 180px;padding:10px 0;border:none;font-size:13px;font-weight:400;background:transparent;color:var(--txt2);cursor:pointer;border-bottom:3px solid transparent;border-radius:8px 8px 0 0;transition:all .2s;font-family:inherit}
+.tab-btn.active{font-weight:700;background:#fff;color:#333;border-bottom-color:var(--ac)}
+.content{padding:16px 20px}
+@media(min-width:700px){.content{padding:20px 24px}}
+.pill-row{display:flex;gap:5px;flex-wrap:wrap;padding-bottom:6px}
+.pill{padding:5px 12px;border-radius:20px;border:none;font-size:12px;font-weight:400;background:var(--pill);color:var(--txt2);cursor:pointer;white-space:nowrap;transition:all .15s;font-family:inherit}
+.pill.on{font-weight:600;color:#fff}
+.fbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0 10px}
+.sbox{flex:1;min-width:140px;max-width:360px;padding:9px 12px;border:1px solid var(--bdr);border-radius:10px;font-size:13px;background:#fff;outline:none;font-family:inherit;transition:border .2s}
+.sbox:focus{border-color:var(--ac)}
+.sel{padding:7px 10px;border:1px solid var(--bdr);border-radius:10px;font-size:12px;background:#fff;font-family:inherit;color:var(--txt);cursor:pointer;outline:none}
+.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+@media(max-width:380px){.igrid{grid-template-columns:1fr}}
+.tile{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);border:2px solid var(--bdr);transition:all .2s}
+.tile.has{opacity:1}.tile.emp{opacity:.5}
+.tile-h{padding:11px 12px;cursor:pointer;display:flex;align-items:center;gap:9px;user-select:none}
+.tile-ic{font-size:22px;flex-shrink:0}
+.tile-i{flex:1;min-width:0}
+.tile-nm{font-weight:700;font-size:14px}
+.tile-nm .ft{font-size:11px;margin-left:4px;font-weight:400;color:var(--acD)}
+.tile-sub{font-size:11px;color:var(--txt2);margin-top:2px}
+.tile-st{color:#b8960c;margin-left:6px}
+.tile-ar{font-size:11px;color:#bbb;transition:transform .2s;flex-shrink:0}.tile-ar.o{transform:rotate(180deg)}
+.tile-d{padding:2px 12px 12px;border-top:1px solid var(--bg2)}
+.sr{display:flex;align-items:center;padding:4px 0;gap:6px}
+.sl{width:65px;font-size:12px;color:#b8960c;font-weight:600}
+.sc{width:30px;text-align:center;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.ab{width:28px;height:28px;border-radius:7px;border:none;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--pill);color:var(--txt);font-family:inherit;transition:background .15s}
+.ab:hover:not(:disabled){background:var(--bg2)}.ab:disabled{background:#f5f5f5;color:#ccc;cursor:not-allowed}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:10px}
+.rc{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,.05);border-left:4px solid #ccc;transition:all .2s}
+.rc.ok{border-left-color:#6BA368}.rc.no{opacity:.6}
+.rc-hd{display:flex;justify-content:space-between;align-items:center}
+.rc-nm{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
+.rc-nm .ci{font-size:16px}
+.rc-ig{font-size:11px;color:var(--txt2);margin-top:5px}.rc-ig .ms{color:#D94F3B;font-weight:600}
+.rc-bs{font-size:11px;color:#6BA368;margin-top:3px}.rc-bs b{color:#b8960c}
+.rc-up{font-size:10px;background:#E8F5E9;color:#2E7D32;padding:2px 7px;border-radius:4px;font-weight:600}
+.rc-fu{font-size:10px;background:#F3E5F5;color:#7B1FA2;padding:2px 7px;border-radius:4px;font-weight:600}
+.rc-ed{margin-top:8px;padding-top:8px;border-top:1px solid var(--bg2)}
+.rc-sr{display:flex;align-items:center;gap:3px;margin-bottom:6px}
+.rc-sr .lb{font-size:11px;color:var(--txt2);margin-right:4px}
+.sb{border:none;background:none;cursor:pointer;font-size:16px;padding:0;line-height:1;transition:transform .1s}
+.sb:hover{transform:scale(1.15)}
+.fr{display:flex;gap:4px;flex-wrap:wrap}
+.fp{font-size:10px;padding:3px 9px;border-radius:10px;font-weight:500;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.fp.on{color:#fff}.fp.off{background:#f0f0f0;color:#bbb}
+.notice{padding:10px 14px;border-radius:10px;font-size:12px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.notice.warn{background:#FFF3E0;color:#E65100}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+.scd{background:#fff;border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.scd .lb{font-size:11px;color:var(--txt2)}.scd .vl{font-size:26px;font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums}
+.scd .mx{font-size:13px;font-weight:400;color:#ccc}
+.bar{height:4px;background:var(--bg2);border-radius:2px;margin-top:7px;overflow:hidden}
+.bar-f{height:100%;border-radius:2px;transition:width .3s}
+.pcol{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+.bcard{background:#fff;border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.bcard h3{font-size:14px;margin-bottom:10px}
+.pr{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid var(--bg2);font-size:13px}
+.pr:last-child{border-bottom:none}
+.pr .ic{font-size:16px;margin-right:7px}.pr .nm{flex:1;font-weight:600}.pr .st{font-size:11px;margin-left:10px}
+.empty{text-align:center;color:#bbb;padding:36px}
+.hidden{display:none}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal{background:#fff;border-radius:16px;padding:22px;max-width:500px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.2)}
+.modal h2{font-size:17px;margin-bottom:14px;color:var(--txt)}
+.modal p{font-size:12px;color:var(--txt2);margin-bottom:10px;line-height:1.6}
+.modal label{display:block;font-size:12px;color:var(--txt2);margin:10px 0 4px;font-weight:600}
+.modal input[type=text],.modal select{width:100%;padding:9px 12px;border:1px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.modal input[type=text]:focus,.modal select:focus{border-color:var(--ac)}
+.modal .chk-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.modal .chk-row label{display:flex;align-items:center;gap:4px;font-weight:400;cursor:pointer;margin:0}
+.mbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.mb{padding:9px 18px;border-radius:10px;border:none;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;transition:background .15s}
+.mb.p{background:var(--acD);color:#fff}.mb.p:hover{filter:brightness(1.15)}
+.mb.s{background:var(--pill);color:var(--txt)}.mb.s:hover{background:var(--bg2)}
+.mb.d{background:#D94F3B;color:#fff}.mb.d:hover{background:#c0392b}
+.cnt{font-size:11px;color:var(--txt2)}
+input[type=file]{display:none}
+.help-section{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:14px}
+.help-section h3{font-size:15px;color:var(--acD);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.help-section h3 span{font-size:20px}
+.help-section p{font-size:13px;color:#555;line-height:1.8;margin-bottom:8px}
+.help-section .step{display:flex;gap:10px;padding:8px 0;align-items:flex-start}
+.help-section .step-num{width:24px;height:24px;border-radius:50%;background:var(--acD);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.help-section .step-txt{font-size:13px;color:#555;line-height:1.7}
+.help-section .tip{background:var(--pill);border-radius:8px;padding:10px 14px;font-size:12px;color:#666;margin-top:8px;line-height:1.7}
+.help-section .tip::before{content:'💡 ';font-size:14px}
+.help-section .key{display:inline-block;background:var(--bg2);padding:1px 8px;border-radius:4px;font-size:12px;font-weight:600;color:var(--acD);margin:0 2px}
+</style>
+</head>
+<body>
+<svg style="position:absolute;width:0;height:0"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter></svg>
+<div class="app">
+  <div class="header">
+    <div class="header-left">
+      <h1>戀與深空 · 廚藝助手</h1>
+      <p>廚藝等級 Lv12｜2026/9/1 更新</p>
+    </div>
+    <div class="header-right">
+      <div class="theme-dots" id="theme-dots"></div>
+      <button class="hdr-btn" onclick="showIO()">📥 導入/導出</button>
+      <button class="hdr-btn" onclick="showAdd()">＋ 自訂</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="inventory">食材庫存</button>
+    <button class="tab-btn" data-tab="recipes">食譜篩選</button>
+    <button class="tab-btn" data-tab="progress">蒐集進度</button>
+    <button class="tab-btn" data-tab="help">使用說明</button>
+  </div>
+  <div class="content"><div id="tab-inventory"></div><div id="tab-recipes" class="hidden"></div><div id="tab-progress" class="hidden"></div><div id="tab-help" class="hidden"></div></div>
+</div>
+<div id="mroot"></div>
+<input type="file" id="finput" accept=".xlsx,.xls" onchange="doImport(event)">
+<script>
+// ═══ THEME ══════════════════════════════════════════════════════════
+const THEMES=["#efa1ad","#b5aff8","#a5daf2","#bc4945","#fec57b","#58baae"];
+function hx2hsl(hex){let r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
+  let mx=Math.max(r,g,b),mn=Math.min(r,g,b),h,s,l=(mx+mn)/2;if(mx===mn)h=s=0;else{let d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);
+  if(mx===r)h=((g-b)/d+(g<b?6:0))/6;else if(mx===g)h=((b-r)/d+2)/6;else h=((r-g)/d+4)/6}return[h*360,s*100,l*100]}
+function hsl2hx(h,s,l){h/=360;s/=100;l/=100;let r,g,b;if(s===0)r=g=b=l;else{const q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;
+  const hue2rgb=(p,q,t)=>{if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p};
+  r=hue2rgb(p,q,h+1/3);g=hue2rgb(p,q,h);b=hue2rgb(p,q,h-1/3)}
+  const to=x=>Math.round(x*255).toString(16).padStart(2,'0');return`#${to(r)}${to(g)}${to(b)}`}
+function applyTheme(idx){
+  const ac=THEMES[idx],[h,s]=hx2hsl(ac);
+  const r=document.documentElement.style;
+  r.setProperty('--bg',hsl2hx(h,s*.2,97));r.setProperty('--bg2',hsl2hx(h,s*.25,93));
+  r.setProperty('--ac',ac);r.setProperty('--acD',hsl2hx(h,s*.7,40));r.setProperty('--acL',hsl2hx(h,s*.4,92));
+  r.setProperty('--pill',hsl2hx(h,s*.15,96));r.setProperty('--bdr',hsl2hx(h,s*.15,88));
+  r.setProperty('--txt',hsl2hx(h,s*.5,18));
+  document.querySelectorAll('.tdot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  try{localStorage.setItem('lads-theme',idx)}catch(e){}
+}
+function initThemes(){const el=document.getElementById('theme-dots');
+  THEMES.forEach((c,i)=>{const d=document.createElement('div');d.className='tdot';d.style.background=c;d.onclick=()=>applyTheme(i);el.appendChild(d)});
+  let saved=0;try{const v=localStorage.getItem('lads-theme');if(v!=null)saved=Number(v)}catch(e){}applyTheme(saved)}
+
+// ═══ DATA ═══════════════════════════════════════════════════════════
+const CC_={肉禽蛋:"#B85C4F",米麵雜糧:"#C9A84C",烘焙:"#D4956A",水產海鮮:"#5B8FA8",水果:"#9B6B9E",蔬菜豆品:"#6BA368",飲料沖調:"#7CA6C0",乾貨:"#8B7355",調味粉:"#C07A5A"};
+const CI_={肉禽蛋:"🥩",米麵雜糧:"🌾",烘焙:"🧁",水產海鮮:"🐟",水果:"🍇",蔬菜豆品:"🥬",飲料沖調:"☕",乾貨:"🍂",調味粉:"🧂"};
+const RI_={主食:"🍚",配菜:"🍖",湯羹:"🍲",甜點:"🍰",飲品:"🥤"};
+const FC_={清苦:"#5B8C5A",爆辣:"#D94F3B",果香:"#E8A94D",酸甜:"#D470A2",鮮香:"#7B6CB5"};
+const FLAV_POWDER={清苦:"苦苣粉",爆辣:"爆辣粉",果香:"橙皮粉",酸甜:"樹莓粉",鮮香:"菌菇粉"};
+const CMAP={肉類:["豬肉","雞肉","鴨肉","牛肉"],菜餡類:["青菜","黃瓜","番茄","玉米","紅蘿蔔","冬瓜","馬鈴薯","洋蔥","青椒","茄子","酸菜","豆腐"],蔬菜類:["青菜","黃瓜","番茄","玉米","紅蘿蔔","冬瓜","馬鈴薯","洋蔥","青椒","茄子","酸菜","豆腐"],水果類:["蘋果","葡萄","檸檬"],水產海鮮類:["蝦","魚"]};
+const ALL_CATS=Object.keys(CC_);const REC_CATS=["主食","配菜","湯羹","甜點","飲品"];const ALL_FLAVORS=["清苦","爆辣","果香","酸甜","鮮香"];
+
+const BUILTIN_ING=[
+  {n:"豬肉",c:"肉禽蛋"},{n:"雞肉",c:"肉禽蛋"},{n:"鴨肉",c:"肉禽蛋"},{n:"牛肉",c:"肉禽蛋"},{n:"雞蛋",c:"肉禽蛋"},
+  {n:"大米",c:"米麵雜糧"},{n:"糯米",c:"米麵雜糧"},{n:"麵粉",c:"米麵雜糧"},
+  {n:"月餅皮",c:"烘焙"},{n:"紅豆",c:"烘焙"},{n:"可可碎粒",c:"烘焙"},{n:"奶油",c:"烘焙"},
+  {n:"蝦",c:"水產海鮮"},{n:"魚",c:"水產海鮮"},
+  {n:"蘋果",c:"水果"},{n:"葡萄",c:"水果"},{n:"檸檬",c:"水果"},
+  {n:"青椒",c:"蔬菜豆品"},{n:"茄子",c:"蔬菜豆品"},{n:"青菜",c:"蔬菜豆品"},{n:"黃瓜",c:"蔬菜豆品"},
+  {n:"番茄",c:"蔬菜豆品"},{n:"玉米",c:"蔬菜豆品"},{n:"豆腐",c:"蔬菜豆品"},{n:"酸菜",c:"蔬菜豆品"},
+  {n:"紅蘿蔔",c:"蔬菜豆品"},{n:"冬瓜",c:"蔬菜豆品"},{n:"馬鈴薯",c:"蔬菜豆品"},{n:"洋蔥",c:"蔬菜豆品"},
+  {n:"咖啡豆",c:"飲料沖調"},{n:"小蘇打",c:"飲料沖調"},{n:"牛奶",c:"飲料沖調"},
+  {n:"粽葉",c:"乾貨"},{n:"咖哩",c:"乾貨"},{n:"酵母",c:"乾貨"},{n:"茶葉",c:"乾貨"},
+  {n:"苦苣粉",c:"調味粉",flavor:"清苦"},{n:"爆辣粉",c:"調味粉",flavor:"爆辣"},
+  {n:"橙皮粉",c:"調味粉",flavor:"果香"},{n:"樹莓粉",c:"調味粉",flavor:"酸甜"},{n:"菌菇粉",c:"調味粉",flavor:"鮮香"},
+];
+
+function pIng(raw){return raw.split(",").map(s=>{s=s.trim();const m=s.match(/^(.+?)\((.+?)\)$/);if(m&&CMAP[m[1]])return{type:"cat",cat:m[1],options:m[2].split("或")};if(CMAP[s])return{type:"cat",cat:s,options:CMAP[s]};return{type:"sp",name:s}})}
+
+const BUILTIN_REC=[
+  ["白粥","主食","水,大米",""],["清湯麵","主食","水,麵粉","爆辣,清苦"],["蛋炒飯","主食","雞蛋,大米","爆辣,鮮香"],["雞蛋麵","主食","水,麵粉,雞蛋","爆辣,鮮香"],
+  ["鍋巴","主食","大米","爆辣,鮮香"],["鮮肉餃子","主食","麵粉,肉類","鮮香"],["番茄雞蛋麵","主食","水,麵粉,番茄,雞蛋","爆辣,酸甜,鮮香"],
+  ["菜包","主食","麵粉,酵母,菜餡類",""],["肉包","主食","麵粉,酵母,肉類",""],["玉米粥","主食","大米,水,玉米","酸甜"],["雞肉粥","主食","大米,水,雞肉","清苦,鮮香"],
+  ["雞湯餛飩","主食","水,雞肉,麵粉,肉類(豬肉或牛肉)","清苦,鮮香"],["牛奶拌麵","主食","牛奶,麵粉","果香,酸甜,鮮香"],["海鮮粥","主食","大米,水,水產海鮮類","爆辣,鮮香"],
+  ["汽水泡麵","主食","小蘇打,麵粉,水","爆辣,酸甜,鮮香"],["什錦炒飯","主食","大米,蝦,玉米,紅蘿蔔","爆辣,鮮香"],["無米炒飯","主食","雞蛋,紅蘿蔔,馬鈴薯","爆辣,鮮香"],
+  ["咖哩飯","主食","咖哩,大米","爆辣,鮮香"],["咖哩雞肉飯","主食","咖哩,大米,雞肉","爆辣,鮮香"],["鮮肉月餅","主食","月餅皮,豬肉","爆辣,鮮香"],
+  ["豆沙月餅","主食","月餅皮,紅豆","果香,酸甜"],["豆沙包","主食","麵粉,酵母,紅豆","果香,清苦"],["鮮肉湯圓","主食","糯米,豬肉,水","爆辣,鮮香"],
+  ["豆沙元宵","主食","糯米,紅豆,水","果香,酸甜"],["糯米飯","主食","糯米",""],["牛肉麵","主食","麵粉,水,牛肉","爆辣,酸甜,鮮香"],
+  ["鮮肉粽子","主食","豬肉,糯米,粽葉","爆辣,鮮香"],["鮮肉蛋黃粽子","主食","豬肉,雞蛋,糯米,粽葉","爆辣,鮮香"],["紅豆粽子","主食","紅豆,糯米,粽葉","果香,酸甜,清苦"],
+  ["煎蛋","配菜","雞蛋",""],["炒青菜","配菜","青菜","爆辣,清苦"],["蒸蛋","配菜","水,雞蛋","果香"],["番茄炒蛋","配菜","番茄,雞蛋","酸甜"],
+  ["黃瓜炒蛋","配菜","黃瓜,雞蛋","鮮香"],["拍黃瓜","配菜","黃瓜","清苦"],["紅燒肉","配菜","豬肉","酸甜,鮮香"],["滷肉","配菜","雞蛋,肉類","爆辣,鮮香"],
+  ["清炒時蔬","配菜","蔬菜類,蔬菜類","爆辣,鮮香"],["白斬雞","配菜","雞肉","爆辣,鮮香"],["可可炒雞蛋","配菜","可可碎粒,雞蛋","爆辣,酸甜,果香"],
+  ["酸菜豆腐","配菜","酸菜,豆腐","爆辣,鮮香"],["白灼蝦","配菜","蝦","鮮香"],["清蒸魚","配菜","魚","爆辣,鮮香"],["酸菜魚","配菜","酸菜,魚","爆辣,酸甜,鮮香"],
+  ["酸菜炒肉絲","配菜","酸菜,肉類","爆辣,酸甜,鮮香"],["麻婆豆腐","配菜","豆腐,豬肉","爆辣,鮮香"],["香煎豆腐","配菜","豆腐","爆辣,鮮香"],
+  ["海鮮燜鍋","配菜","水產海鮮類,水產海鮮類","爆辣,鮮香"],["馬鈴薯燒雞","配菜","馬鈴薯,雞肉","爆辣,鮮香"],["馬鈴薯絲","配菜","馬鈴薯","爆辣,鮮香"],
+  ["烤鴨","配菜","鴨肉","果香,鮮香"],["肉末茄子","配菜","茄子,肉類","爆辣,鮮香"],["咖哩馬鈴薯雞","配菜","咖哩,馬鈴薯,雞肉","爆辣,鮮香"],
+  ["糯米雞","配菜","糯米,雞肉","爆辣,鮮香"],["茶葉蛋","配菜","茶葉,雞蛋","爆辣,酸甜,鮮香"],["紅燒牛腩","配菜","牛肉","酸甜,鮮香"],
+  ["番茄牛腩","配菜","番茄,牛肉","爆辣,酸甜,鮮香"],["馬鈴薯牛腩","配菜","馬鈴薯,牛肉","爆辣,鮮香"],["蔥爆牛肉","配菜","洋蔥,牛肉","爆辣,鮮香"],
+  ["檸檬魚","配菜","檸檬,魚","爆辣,果香,酸甜"],["青椒肉絲","配菜","青椒,肉類","爆辣,鮮香"],["青椒炒蛋","配菜","青椒,雞蛋","爆辣,清苦,鮮香"],
+  ["地三鮮","配菜","青椒,馬鈴薯,茄子","爆辣,鮮香"],
+  ["番茄蛋湯","湯羹","番茄,雞蛋,水","酸甜"],["玉米羹","湯羹","麵粉,玉米,水","酸甜"],["鯽魚豆腐湯","湯羹","魚,豆腐,水","清苦,鮮香"],
+  ["冬瓜湯","湯羹","冬瓜,水","清苦,鮮香"],["冬瓜排骨湯","湯羹","冬瓜,豬肉,水","清苦,鮮香"],["老鴨湯","湯羹","鴨肉,水","果香,清苦,鮮香"],
+  ["酸菜鴨肉湯","湯羹","鴨肉,酸菜,水","爆辣,清苦,鮮香"],["羅宋湯","湯羹","馬鈴薯,紅蘿蔔,牛肉,水","酸甜,鮮香"],
+  ["蘋果派","甜點","蘋果,麵粉","果香,酸甜"],["牛乳冰淇淋","甜點","牛奶,奶油","果香,酸甜"],["可可冰淇淋","甜點","可可碎粒,奶油","果香,酸甜"],
+  ["奶油蛋糕","甜點","奶油,雞蛋,麵粉","果香,清苦"],["可可奶油蛋糕","甜點","奶油,雞蛋,麵粉,可可碎粒","果香,酸甜"],
+  ["葡萄冰淇淋","甜點","葡萄,奶油","果香,酸甜"],["水果碗","甜點","牛奶,水果類,水果類","果香,酸甜"],["咖啡冰淇淋","甜點","咖啡豆,奶油","果香,酸甜"],
+  ["飲用水","飲品","水",""],["蔬菜汁","飲品","水,青菜","清苦"],["可可牛奶","飲品","可可碎粒,牛奶","果香,酸甜"],
+  ["玉米汁","飲品","水,玉米","酸甜"],["熱牛奶","飲品","牛奶","果香,酸甜"],["蘋果汁","飲品","水,蘋果","果香,清苦"],
+  ["蘇打水","飲品","水,小蘇打","果香,酸甜"],["蘋果汽水","飲品","水,小蘇打,蘋果","果香,酸甜"],["紅蘿蔔汁","飲品","紅蘿蔔,水","酸甜,清苦"],
+  ["紅豆牛奶","飲品","紅豆,牛奶","果香,酸甜"],["葡萄汽水","飲品","葡萄,小蘇打,水","果香,酸甜"],["葡萄牛奶","飲品","葡萄,牛奶","果香,酸甜"],
+  ["葡萄汁","飲品","葡萄,水","果香,酸甜"],["茶","飲品","茶葉,水","果香,清苦"],["奶茶","飲品","牛奶,茶葉,水","果香,酸甜,清苦"],
+  ["咖啡","飲品","咖啡豆,水","果香,酸甜,清苦"],["咖啡牛奶","飲品","咖啡豆,牛奶","果香,酸甜"],
+  ["檸檬水","飲品","檸檬,水","果香,酸甜,清苦"],["檸檬汽水","飲品","檸檬,小蘇打,水","果香,酸甜"],
+].map(([nm,cat,ir,fr])=>({name:nm,cat,ingRaw:ir,ingredients:pIng(ir),allFlavors:fr?fr.split(",").filter(Boolean):[],custom:false}));
+
+// ═══ STATE ══════════════════════════════════════════════════════════
+let inv,prog,customIng,customRec;
+let curTab="inventory",catF="全部",rcatF="全部",ravF="全部",sTxt="",expT=null,sMode="default";
+
+function allIng(){return[...inv,...customIng.map(d=>({...d,s:d.s||{5:0,4:0,3:0,2:0,1:0}}))]}
+function allRec(){return[...BUILTIN_REC,...customRec.map(r=>({...r,ingredients:pIng(r.ingRaw)}))]}
+function getCC(){const m={...CC_};customIng.forEach(i=>{if(!m[i.c])m[i.c]="#999"});return m}
+function getCI(){const m={...CI_};customIng.forEach(i=>{if(!m[i.c])m[i.c]="📦"});return m}
+function getRI(){const m={...RI_};customRec.forEach(r=>{if(!m[r.cat])m[r.cat]="🍽️"});return m}
+
+function initState(){
+  inv=BUILTIN_ING.map(d=>({...d,s:{5:0,4:0,3:0,2:0,1:0}}));prog={};customIng=[];customRec=[];
+  allRec().forEach(r=>{if(!prog[r.name])prog[r.name]={maxStar:0,unlocked:[]}});
+}
+function save(){try{localStorage.setItem('lads-inv',JSON.stringify(inv));localStorage.setItem('lads-prog',JSON.stringify(prog));localStorage.setItem('lads-cing',JSON.stringify(customIng));localStorage.setItem('lads-crec',JSON.stringify(customRec))}catch(e){}}
+function load(){try{const a=localStorage.getItem('lads-inv'),b=localStorage.getItem('lads-prog'),c=localStorage.getItem('lads-cing'),d=localStorage.getItem('lads-crec');
+  if(a)inv=JSON.parse(a);if(b)prog=JSON.parse(b);if(c)customIng=JSON.parse(c);if(d)customRec=JSON.parse(d)}catch(e){}}
+function ensureProg(){allRec().forEach(r=>{if(!prog[r.name])prog[r.name]={maxStar:0,unlocked:[]}})}
+const tot=s=>s?Object.values(s).reduce((a,b)=>a+b,0):0;
+const strs=n=>"★".repeat(n);
+function gP(nm){if(!prog[nm])prog[nm]={maxStar:0,unlocked:[]};return prog[nm]}
+
+function chkA(r){const ai=allIng(),im={};ai.forEach(i=>{im[i.n]=tot(i.s)});im["水"]=999;const need={};
+  for(const req of r.ingredients){if(req.type==="sp"){need[req.name]=(need[req.name]||0)+1}
+    else{const opts=req.options||CMAP[req.cat]||[];const av=opts.filter(o=>(im[o]||0)-(need[o]||0)>0);
+      if(!av.length)return{ok:false,missing:[req.cat]};const pk=av.sort((a,b)=>(im[b]||0)-(im[a]||0))[0];need[pk]=(need[pk]||0)+1}}
+  const ms=[];for(const[n,c]of Object.entries(need))if((im[n]||0)<c)ms.push(n);return{ok:!ms.length,missing:ms}}
+
+function bStar(r){const ai=allIng(),im={};ai.forEach(i=>{im[i.n]={...(i.s||{})}});const u=[];
+  for(const req of r.ingredients){if(req.type==="sp"){if(req.name==="水"){u.push(5);continue}const s=im[req.name];if(!s)return 0;const b=[5,4,3,2,1].find(l=>(s[l]||0)>0);if(!b)return 0;s[b]--;u.push(b)}
+    else{const opts=req.options||CMAP[req.cat]||[];let bp=null,bs=0;for(const o of opts){const s=im[o];if(!s)continue;const st=[5,4,3,2,1].find(l=>(s[l]||0)>0);if(st&&st>bs){bs=st;bp=o}}if(!bp)return 0;im[bp][bs]--;u.push(bs)}}
+  return u.length?Math.min(...u):0}
+
+function hasPowder(flav){const ai=allIng();const pn=FLAV_POWDER[flav];if(!pn)return false;const it=ai.find(i=>i.n===pn);return it&&tot(it.s)>0}
+function anyPowder(){return ALL_FLAVORS.some(f=>hasPowder(f))}
+
+function canUnlockFlavors(r){const p=gP(r.name);return r.allFlavors.filter(f=>!p.unlocked.includes(f)&&hasPowder(f)).length}
+
+// ═══ TABS ═══════════════════════════════════════════════════════════
+function swTab(t){curTab=t;document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
+  ["inventory","recipes","progress","help"].forEach(x=>document.getElementById("tab-"+x).classList.toggle("hidden",x!==t));render()}
+
+// ═══ RENDER ═════════════════════════════════════════════════════════
+function render(){if(curTab==="inventory")rInv();else if(curTab==="recipes")rRec();else if(curTab==="progress")rProg();else if(curTab==="help")rHelp()}
+
+function rHelp(){const el=document.getElementById("tab-help");
+el.innerHTML=`
+<div class="help-section">
+  <h3><span>👋</span>歡迎使用廚藝助手</h3>
+  <p>這是一個為《戀與深空》家園廚藝系統設計的食譜蒐集追蹤工具。你可以管理食材庫存、追蹤食譜解鎖進度、快速找到現在能做什麼菜來推進蒐集成就。</p>
+  <p>目前資料更新至<span class="key">廚藝等級 Lv12</span>（2026/9/1），後續更新的菜品和食材可以透過「自訂」功能手動新增。</p>
+  <div class="tip">所有資料自動儲存在瀏覽器的 localStorage 中，只要不清除瀏覽器資料就會一直保留。建議定期用「導出備份」保存一份 Excel 以防萬一。</div>
+</div>
+
+<div class="help-section">
+  <h3><span>🥩</span>食材庫存</h3>
+  <p>管理你目前擁有的所有食材及其星級數量。</p>
+  <div class="step"><div class="step-num">1</div><div class="step-txt">透過上方的<span class="key">分類標籤</span>或<span class="key">搜尋框</span>快速找到食材。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-txt">點擊食材卡片展開，可以看到各星級（★～★★★★★）的庫存數量。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-txt">使用<span class="key">＋</span>和<span class="key">−</span>按鈕手動調整每個星級的數量。</div></div>
+  <div class="tip">「水」為無限供應的食材，不需要管理庫存。調味粉（苦苣粉、爆辣粉、橙皮粉、樹莓粉、菌菇粉）用於解鎖風味菜品。</div>
+</div>
+
+<div class="help-section">
+  <h3><span>🍳</span>食譜篩選</h3>
+  <p>根據你的庫存即時篩選可以製作的菜品，並直接在卡片上更新解鎖進度。</p>
+  <div class="step"><div class="step-num">1</div><div class="step-txt"><span class="key">分類篩選</span>：按主食、配菜、湯羹、甜點、飲品過濾。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">狀態篩選</span>：可製作（庫存足夠）、缺食材、未滿星、有未解鎖風味。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-txt"><span class="key">排序方式</span>：<br>
+    ・預設排序：按原始順序<br>
+    ・升星優先：把「目前低星但庫存能做更高星」的菜排前面，標示<span class="key">可升N星</span><br>
+    ・可解鎖風味優先：根據你有的調味粉，把能解鎖最多新風味的菜排前面<br>
+    ・名稱排序：按筆劃排列</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-txt"><span class="key">更新進度</span>：每張食譜卡片底部可以直接點擊星星設定已達星級，點擊風味標籤切換解鎖狀態。<br>
+    ・🔓 表示你有對應的調味粉，可以解鎖<br>
+    ・🔒 表示缺少調味粉</div></div>
+  <div class="tip">使用「可解鎖風味優先」排序時，如果所有調味粉庫存都是 0，會顯示提示訊息。</div>
+</div>
+
+<div class="help-section">
+  <h3><span>📊</span>蒐集進度</h3>
+  <p>總覽你的整體蒐集狀況，包含現可製作數、滿星菜品數、風味解鎖數，以及各分類和食材庫存的細項統計。</p>
+</div>
+
+<div class="help-section">
+  <h3><span>📥</span>導入 / 導出</h3>
+  <p>支援 Excel 批量匯入匯出，方便初始化資料和備份。</p>
+  <div class="step"><div class="step-num">1</div><div class="step-txt"><span class="key">下載空白範本</span>：取得格式正確的 Excel 檔案，包含「食材庫存」和「食譜進度」兩個工作表。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">填寫範本</span>：食材庫存頁填入各星級數量。食譜進度頁設定已達星級（0-5），風味欄位從下拉選單選擇「已解鎖」或「未解鎖」。標示「—」的風味表示該菜品不支援此風味，無需修改。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-txt"><span class="key">導入 Excel</span>：選擇填好的檔案導入，會覆蓋目前的資料。</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-txt"><span class="key">導出備份</span>：隨時可以將目前的所有資料導出為 Excel，檔名自動帶上日期。</div></div>
+  <div class="tip">導入會覆蓋現有資料，建議先導出備份再操作。</div>
+</div>
+
+<div class="help-section">
+  <h3><span>✨</span>自訂新增</h3>
+  <p>廚藝等級超過 Lv12 或版本更新後的新菜品和食材，可以手動新增。</p>
+  <div class="step"><div class="step-num">1</div><div class="step-txt">點擊右上角<span class="key">＋ 自訂</span>按鈕，選擇新增食材或新增菜品。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">新增食材</span>：輸入名稱並選擇分類（也可以新建分類）。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-txt"><span class="key">新增菜品</span>：輸入名稱、選擇分類、填寫食材需求（逗號分隔），勾選可解鎖的風味。<br>
+    食材需求支援泛用類別寫法：<br>
+    ・<span class="key">肉類</span>＝豬肉/雞肉/鴨肉/牛肉任一<br>
+    ・<span class="key">蔬菜類</span>＝所有蔬菜豆品任一<br>
+    ・<span class="key">水果類</span>＝蘋果/葡萄/檸檬任一<br>
+    ・<span class="key">水產海鮮類</span>＝蝦/魚任一<br>
+    ・限定寫法：<span class="key">肉類(豬肉或牛肉)</span></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-txt">自訂項目會標示「自訂」標籤，展開後可刪除。自訂資料同樣會包含在 Excel 導出中。</div></div>
+</div>
+
+<div class="help-section">
+  <h3><span>🎨</span>主題色切換</h3>
+  <p>右上角六個彩色圓點可以切換介面主題色，選擇會自動記住。</p>
+</div>
+
+<div class="help-section" style="text-align:center;color:#bbb;font-size:12px;box-shadow:none;background:transparent">
+  Made with ❤️ for 戀與深空<br>有問題或建議歡迎回饋
+</div>
+`}
+
+function rInv(){const el=document.getElementById("tab-inventory");const CC=getCC(),CI_=getCI();
+  const cats=["全部",...Object.keys(CC)];let items=allIng().filter(i=>i.n!=="水");
+  if(catF!=="全部")items=items.filter(i=>i.c===catF);if(sTxt)items=items.filter(i=>i.n.includes(sTxt));
+  let h=`<div class="pill-row">${cats.map(c=>`<button class="pill${catF===c?" on":""}" style="${catF===c?`background:${CC[c]||"var(--ac)"}`:""}" onclick="catF='${c}';render()">${c}</button>`).join("")}</div>`;
+  h+=`<div class="fbar"><input class="sbox" value="${sTxt}" oninput="sTxt=this.value;render()" placeholder="搜尋食材⋯"></div>`;
+  if(!items.length)h+=`<div class="empty">沒有符合條件的食材</div>`;
+  else{h+=`<div class="igrid">`;for(const it of items){const t=tot(it.s),co=CC[it.c]||"#999",ic=CI_[it.c]||"📦",ex=expT===it.n;
+    const si=t>0?[5,4,3,2,1].filter(l=>it.s[l]>0).map(l=>`${strs(l)}×${it.s[l]}`).join(" "):"";
+    h+=`<div class="tile ${t>0?"has":"emp"}" style="border-color:${t>0?co:"var(--bdr)"}"><div class="tile-h" onclick="expT=expT==='${it.n}'?null:'${it.n}';render()">`;
+    h+=`<span class="tile-ic">${ic}</span><div class="tile-i"><div class="tile-nm">${it.n}${it.flavor?`<span class="ft">(${it.flavor})</span>`:""}</div>`;
+    h+=`<div class="tile-sub">共 ${t} 個${si?`<span class="tile-st">${si}</span>`:""}</div></div><span class="tile-ar${ex?" o":""}">▼</span></div>`;
+    if(ex){h+=`<div class="tile-d">`;for(let l=5;l>=1;l--)h+=`<div class="sr"><span class="sl">${strs(l)}</span><button class="ab" onclick="adjS('${it.n}',${l},-1)"${(it.s[l]||0)<=0?" disabled":""}>−</button><span class="sc">${it.s[l]||0}</span><button class="ab" onclick="adjS('${it.n}',${l},1)">+</button></div>`;
+      if(it.custom)h+=`<button class="mb d" style="margin-top:8px;font-size:11px;padding:5px 12px" onclick="delIng('${it.n}')">刪除此食材</button>`;
+      h+=`</div>`}h+=`</div>`}h+=`</div>`}
+  el.innerHTML=h}
+
+function rRec(){const el=document.getElementById("tab-recipes");const RI=getRI();const ar=allRec();
+  const rcs=["全部",...new Set(ar.map(r=>r.cat))];
+  const afs=["全部","可製作","缺食材","未滿星","有未解鎖風味"];const afc={可製作:"#6BA368",缺食材:"#D94F3B",未滿星:"#b8960c",有未解鎖風味:"#7B6CB5"};
+  let list=ar.slice();
+  if(rcatF!=="全部")list=list.filter(r=>r.cat===rcatF);
+  if(ravF==="可製作")list=list.filter(r=>chkA(r).ok);
+  else if(ravF==="缺食材")list=list.filter(r=>!chkA(r).ok);
+  else if(ravF==="未滿星")list=list.filter(r=>gP(r.name).maxStar<5);
+  else if(ravF==="有未解鎖風味")list=list.filter(r=>{const p=gP(r.name);return r.allFlavors.some(f=>!p.unlocked.includes(f))});
+
+  if(sMode==="upgrade"){list.forEach(r=>{r._bs=chkA(r).ok?bStar(r):0;r._cur=gP(r.name).maxStar;r._gap=r._bs-r._cur});list.sort((a,b)=>(b._gap-a._gap)||(b._bs-a._bs))}
+  else if(sMode==="flavor"){list.forEach(r=>{r._fc=canUnlockFlavors(r)});list.sort((a,b)=>(b._fc-a._fc))}
+  else if(sMode==="name")list.sort((a,b)=>a.name.localeCompare(b.name,"zh-TW"));
+
+  let h=`<div class="pill-row">${rcs.map(c=>`<button class="pill${rcatF===c?" on":""}" style="${rcatF===c?"background:var(--ac)":""}" onclick="rcatF='${c}';render()">${c}</button>`).join("")}</div>`;
+  h+=`<div class="pill-row">${afs.map(f=>`<button class="pill${ravF===f?" on":""}" style="${ravF===f?`background:${afc[f]||"var(--ac)"}`:""}" onclick="ravF='${f}';render()">${f}</button>`).join("")}</div>`;
+
+  // Powder notice
+  if(sMode==="flavor"&&!anyPowder())h+=`<div class="notice warn">🧂 目前暫無任何調味料庫存，無法解鎖新風味。請先取得調味粉再使用此排序。</div>`;
+
+  h+=`<div class="fbar"><span class="cnt">顯示 ${list.length} / ${ar.length}</span>`;
+  h+=`<select class="sel" onchange="sMode=this.value;render()"><option value="default"${sMode==="default"?" selected":""}>預設排序</option><option value="upgrade"${sMode==="upgrade"?" selected":""}>升星優先</option><option value="flavor"${sMode==="flavor"?" selected":""}>可解鎖風味優先</option><option value="name"${sMode==="name"?" selected":""}>名稱排序</option></select></div>`;
+  h+=`<div class="rgrid">`;
+  for(const r of list){const{ok,missing}=chkA(r);const bs=ok?bStar(r):0;const p=gP(r.name);const gap=bs-p.maxStar;const fc=canUnlockFlavors(r);
+    h+=`<div class="rc ${ok?"ok":"no"}"><div class="rc-hd"><div class="rc-nm"><span class="ci">${RI[r.cat]||"🍽️"}</span>${r.name}${r.custom?`<span style="font-size:10px;color:var(--acD);margin-left:4px">自訂</span>`:""}</div><div style="display:flex;gap:4px;align-items:center">`;
+    if(sMode==="flavor"&&fc>0)h+=`<span class="rc-fu">可解鎖${fc}風味</span>`;
+    if(gap>0&&ok&&sMode==="upgrade")h+=`<span class="rc-up">可升${gap}星</span>`;
+    if(p.maxStar>=5)h+=`<span style="font-size:10px;background:#FFF3CD;color:#856404;padding:2px 6px;border-radius:4px;font-weight:600">滿星✓</span>`;
+    else if(p.maxStar>0)h+=`<span style="font-size:10px;color:#b8960c">${strs(p.maxStar)}</span>`;
+    h+=`</div></div>`;
+    h+=`<div class="rc-ig">食材：${r.ingRaw.split(",").map(g=>{g=g.trim();return`<span${missing.includes(g)?` class="ms"`:``}>${g}</span>`}).join("、")}</div>`;
+    if(ok&&bs>0)h+=`<div class="rc-bs">現有最高可達 <b>${strs(bs)}</b></div>`;
+    h+=`<div class="rc-ed"><div class="rc-sr"><span class="lb">已達星級</span>`;
+    for(let i=1;i<=5;i++)h+=`<button class="sb" onclick="setStar('${r.name}',${i})">${i<=p.maxStar?"⭐":"☆"}</button>`;
+    h+=`</div>`;
+    if(r.allFlavors.length){h+=`<div class="fr">`;for(const f of r.allFlavors){const on=p.unlocked.includes(f);const hp=hasPowder(f);
+      h+=`<button class="fp ${on?"on":"off"}" style="${on?`background:${FC_[f]||"#999"}`:""}" onclick="togFlav('${r.name}','${f}')" title="${on?"已解鎖":hp?"點擊解鎖":"缺少"+FLAV_POWDER[f]}">${f}${on?"":hp?" 🔓":" 🔒"}</button>`}h+=`</div>`}
+    if(r.custom)h+=`<button class="mb d" style="margin-top:8px;font-size:10px;padding:4px 10px" onclick="delRec('${r.name}')">刪除</button>`;
+    h+=`</div></div>`}
+  h+=`</div>`;el.innerHTML=h}
+
+function rProg(){const el=document.getElementById("tab-progress");const ar=allRec(),ai=allIng(),RI=getRI(),CC=getCC(),CI=getCI();
+  const tt=ar.length,s5=ar.filter(r=>gP(r.name).maxStar>=5).length;
+  const af=ar.reduce((a,r)=>a+r.allFlavors.length,0),uf=ar.reduce((a,r)=>a+gP(r.name).unlocked.length,0);
+  const cr=ar.filter(r=>chkA(r).ok).length;
+  const sC=(lb,v,mx,co)=>{let h=`<div class="scd"><div class="lb">${lb}</div><div class="vl" style="color:${co}">${v}${mx!=null?`<span class="mx"> / ${mx}</span>`:""}</div>`;if(mx!=null)h+=`<div class="bar"><div class="bar-f" style="background:${co};width:${(v/mx*100).toFixed(1)}%"></div></div>`;return h+`</div>`};
+  let h=`<div class="sgrid">${sC("現可製作",cr,tt,"#6BA368")}${sC("滿星菜品",s5,tt,"#b8960c")}${sC("風味解鎖",uf,af,"#7B6CB5")}${sC("菜品總數",tt,null,"var(--txt)")}</div>`;
+  h+=`<div class="pcol"><div class="bcard"><h3>各分類進度</h3>`;
+  const rcats=[...new Set(ar.map(r=>r.cat))];
+  for(const c of rcats){const it=ar.filter(r=>r.cat===c);const s=it.filter(r=>gP(r.name).maxStar>=5).length;const ck=it.filter(r=>chkA(r).ok).length;
+    h+=`<div class="pr"><span class="ic">${RI[c]||"🍽️"}</span><span class="nm">${c}</span><span class="st" style="color:#6BA368">可做 ${ck}/${it.length}</span><span class="st" style="color:#b8960c">★5 ${s}/${it.length}</span></div>`}
+  h+=`</div><div class="bcard"><h3>食材庫存總覽</h3>`;
+  const icats=[...new Set(ai.map(i=>i.c))].filter(c=>c!=="調味粉");
+  for(const c of icats){const it=ai.filter(i=>i.c===c);const t2=it.reduce((a,i)=>a+tot(i.s),0);const ha=it.filter(i=>tot(i.s)>0).length;
+    h+=`<div class="pr"><span class="ic">${CI[c]||"📦"}</span><span class="nm" style="color:${CC[c]||"#999"}">${c}</span><span class="st">${ha}/${it.length} 種</span><span class="st" style="font-weight:600">${t2} 個</span></div>`}
+  h+=`</div></div>`;el.innerHTML=h}
+
+// ═══ ACTIONS ════════════════════════════════════════════════════════
+function adjS(nm,lv,d){const it=allIng().find(i=>i.n===nm);if(!it)return;if(!it.s)it.s={5:0,4:0,3:0,2:0,1:0};it.s[lv]=Math.max(0,(it.s[lv]||0)+d);
+  // sync back
+  const bi=inv.find(i=>i.n===nm);if(bi){bi.s=it.s}else{const ci=customIng.find(i=>i.n===nm);if(ci)ci.s=it.s}
+  save();render()}
+function setStar(nm,lv){const p=gP(nm);p.maxStar=p.maxStar===lv?lv-1:lv;save();render()}
+function togFlav(nm,f){const p=gP(nm);const i=p.unlocked.indexOf(f);if(i>=0)p.unlocked.splice(i,1);else p.unlocked.push(f);save();render()}
+
+// ═══ CUSTOM ADD ═════════════════════════════════════════════════════
+function showAdd(){const mr=document.getElementById("mroot");
+  mr.innerHTML=`<div class="mbg" onclick="if(event.target===this)clM()"><div class="modal">
+    <h2>＋ 自訂新增</h2>
+    <div class="mbtns"><button class="mb p" onclick="showAddIng()">新增食材</button><button class="mb p" onclick="showAddRec()">新增菜品</button><button class="mb s" onclick="clM()">關閉</button></div>
+  </div></div>`}
+
+function showAddIng(){const mr=document.getElementById("mroot");const CC=getCC();
+  mr.innerHTML=`<div class="mbg" onclick="if(event.target===this)clM()"><div class="modal">
+    <h2>新增食材</h2>
+    <label>食材名稱</label><input type="text" id="ai-name" placeholder="例：羊肉">
+    <label>分類</label><select id="ai-cat">${ALL_CATS.map(c=>`<option value="${c}">${c}</option>`).join("")}<option value="__new">＋ 新分類</option></select>
+    <div id="ai-newcat" style="display:none;margin-top:6px"><input type="text" id="ai-catname" placeholder="新分類名稱"></div>
+    <div class="mbtns"><button class="mb p" onclick="doAddIng()">新增</button><button class="mb s" onclick="showAdd()">返回</button></div>
+  </div></div>`;
+  document.getElementById('ai-cat').onchange=function(){document.getElementById('ai-newcat').style.display=this.value==='__new'?'block':'none'}}
+
+function doAddIng(){const nm=document.getElementById('ai-name').value.trim();let cat=document.getElementById('ai-cat').value;
+  if(cat==='__new')cat=document.getElementById('ai-catname').value.trim();
+  if(!nm){alert('請輸入食材名稱');return}if(!cat){alert('請選擇或輸入分類');return}
+  if(allIng().find(i=>i.n===nm)){alert('此食材已存在');return}
+  customIng.push({n:nm,c:cat,s:{5:0,4:0,3:0,2:0,1:0},custom:true});save();clM();render()}
+
+function showAddRec(){const mr=document.getElementById("mroot");const RC=[...new Set(allRec().map(r=>r.cat))];
+  mr.innerHTML=`<div class="mbg" onclick="if(event.target===this)clM()"><div class="modal">
+    <h2>新增菜品</h2>
+    <label>菜品名稱</label><input type="text" id="ar-name" placeholder="例：紅燒羊肉">
+    <label>分類</label><select id="ar-cat">${REC_CATS.map(c=>`<option value="${c}">${c}</option>`).join("")}<option value="__new">＋ 新分類</option></select>
+    <div id="ar-newcat" style="display:none;margin-top:6px"><input type="text" id="ar-catname" placeholder="新分類名稱"></div>
+    <label>食材需求（逗號分隔）</label><input type="text" id="ar-ing" placeholder="例：羊肉,馬鈴薯,水">
+    <p style="font-size:11px;color:#aaa">可使用泛用類別：肉類、蔬菜類、水果類、水產海鮮類、菜餡類<br>限定寫法：肉類(豬肉或牛肉)</p>
+    <label>可解鎖風味</label>
+    <div class="chk-row">${ALL_FLAVORS.map(f=>`<label><input type="checkbox" value="${f}">${f}</label>`).join("")}</div>
+    <div class="mbtns"><button class="mb p" onclick="doAddRec()">新增</button><button class="mb s" onclick="showAdd()">返回</button></div>
+  </div></div>`;
+  document.getElementById('ar-cat').onchange=function(){document.getElementById('ar-newcat').style.display=this.value==='__new'?'block':'none'}}
+
+function doAddRec(){const nm=document.getElementById('ar-name').value.trim();let cat=document.getElementById('ar-cat').value;
+  if(cat==='__new')cat=document.getElementById('ar-catname').value.trim();
+  const ir=document.getElementById('ar-ing').value.trim();
+  if(!nm){alert('請輸入菜品名稱');return}if(!cat){alert('請選擇分類');return}if(!ir){alert('請輸入食材需求');return}
+  if(allRec().find(r=>r.name===nm)){alert('此菜品已存在');return}
+  const flavs=[...document.querySelectorAll('#mroot .chk-row input:checked')].map(cb=>cb.value);
+  customRec.push({name:nm,cat,ingRaw:ir,allFlavors:flavs,custom:true});ensureProg();save();clM();render()}
+
+function delIng(nm){if(!confirm(`確定刪除食材「${nm}」？`))return;customIng=customIng.filter(i=>i.n!==nm);save();render()}
+function delRec(nm){if(!confirm(`確定刪除菜品「${nm}」？`))return;customRec=customRec.filter(r=>r.name!==nm);delete prog[nm];save();render()}
+
+// ═══ IMPORT/EXPORT ══════════════════════════════════════════════════
+function showIO(){const mr=document.getElementById("mroot");
+  mr.innerHTML=`<div class="mbg" onclick="if(event.target===this)clM()"><div class="modal">
+    <h2>📥 導入 / 導出</h2><p>下載空白範本填寫後導入，或導出目前資料作為備份。導入會覆蓋目前資料。</p>
+    <div class="mbtns">
+      <button class="mb s" onclick="dlTpl()">📄 空白範本</button>
+      <button class="mb s" onclick="dlCur()">💾 導出備份</button>
+      <button class="mb p" onclick="document.getElementById('finput').click()">📥 導入 Excel</button>
+      <button class="mb d" onclick="doReset()">🗑️ 清除資料</button>
+    </div><div class="mbtns"><button class="mb s" onclick="clM()">關閉</button></div></div></div>`}
+function clM(){document.getElementById("mroot").innerHTML=""}
+function doReset(){if(!confirm("確定清除所有資料？"))return;initState();save();clM();render()}
+
+function dlTpl(){const wb=XLSX.utils.book_new();
+  const d1=[["食材名稱","分類","5星庫存","4星庫存","3星庫存","2星庫存","1星庫存"]];
+  allIng().forEach(i=>d1.push([i.n+(i.flavor?`(${i.flavor})`:""),i.c,0,0,0,0,0]));
+  const ws1=XLSX.utils.aoa_to_sheet(d1);ws1["!cols"]=[{wch:16},{wch:10},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws1,"食材庫存");
+  const d2=[["菜品名稱","分類","食材需求","已達最高星級(0-5)","清苦","爆辣","果香","酸甜","鮮香"]];
+  allRec().forEach(r=>{const row=[r.name,r.cat,r.ingRaw,0];ALL_FLAVORS.forEach(f=>row.push(r.allFlavors.includes(f)?"未解鎖":"—"));d2.push(row)});
+  const ws2=XLSX.utils.aoa_to_sheet(d2);ws2["!cols"]=[{wch:16},{wch:8},{wch:28},{wch:18},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8}];
+  const nR=allRec().length;ws2["!dataValidation"]=[{sqref:`D2:D${nR+1}`,type:"list",formula1:'"0,1,2,3,4,5"'},{sqref:`E2:I${nR+1}`,type:"list",formula1:'"已解鎖,未解鎖,—"'}];
+  XLSX.utils.book_append_sheet(wb,ws2,"食譜進度");XLSX.writeFile(wb,"廚藝助手_空白範本.xlsx")}
+
+function dlCur(){const wb=XLSX.utils.book_new();
+  const d1=[["食材名稱","分類","5星庫存","4星庫存","3星庫存","2星庫存","1星庫存"]];
+  allIng().forEach(i=>d1.push([i.n+(i.flavor?`(${i.flavor})`:""),i.c,i.s[5]||0,i.s[4]||0,i.s[3]||0,i.s[2]||0,i.s[1]||0]));
+  const ws1=XLSX.utils.aoa_to_sheet(d1);ws1["!cols"]=[{wch:16},{wch:10},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws1,"食材庫存");
+  const d2=[["菜品名稱","分類","食材需求","已達最高星級(0-5)","清苦","爆辣","果香","酸甜","鮮香"]];
+  allRec().forEach(r=>{const p=gP(r.name);const row=[r.name,r.cat,r.ingRaw,p.maxStar];ALL_FLAVORS.forEach(f=>row.push(!r.allFlavors.includes(f)?"—":p.unlocked.includes(f)?"已解鎖":"未解鎖"));d2.push(row)});
+  const ws2=XLSX.utils.aoa_to_sheet(d2);ws2["!cols"]=[{wch:16},{wch:8},{wch:28},{wch:18},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws2,"食譜進度");
+  const ts=new Date().toISOString().slice(0,10).replace(/-/g,"");XLSX.writeFile(wb,`廚藝助手_備份_${ts}.xlsx`)}
+
+function doImport(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();
+  reader.onload=function(ev){try{const wb=XLSX.read(ev.target.result,{type:"array"});let n=0;
+    const sn1=wb.SheetNames.find(s=>s.includes("食材"));
+    if(sn1){XLSX.utils.sheet_to_json(wb.Sheets[sn1]).forEach(row=>{
+      const rn=String(row["食材名稱"]||"").replace(/\(.+?\)$/,"").trim();const it=allIng().find(i=>i.n===rn);
+      if(it){it.s[5]=Number(row["5星庫存"])||0;it.s[4]=Number(row["4星庫存"])||0;it.s[3]=Number(row["3星庫存"])||0;it.s[2]=Number(row["2星庫存"])||0;it.s[1]=Number(row["1星庫存"])||0;
+        const bi=inv.find(i=>i.n===rn);if(bi)bi.s={...it.s};const ci=customIng.find(i=>i.n===rn);if(ci)ci.s={...it.s};n++}})}
+    const sn2=wb.SheetNames.find(s=>s.includes("食譜"));
+    if(sn2){XLSX.utils.sheet_to_json(wb.Sheets[sn2]).forEach(row=>{
+      const nm=String(row["菜品名稱"]||"").trim();const r=allRec().find(x=>x.name===nm);if(!r)return;const p=gP(nm);
+      p.maxStar=Math.min(5,Math.max(0,Number(row["已達最高星級(0-5)"])||0));p.unlocked=[];
+      ALL_FLAVORS.forEach(f=>{if(r.allFlavors.includes(f)&&String(row[f]||"").includes("已解鎖"))p.unlocked.push(f)});n++})}
+    save();render();clM();alert(`導入完成！共 ${n} 筆。`)}catch(err){alert("導入失敗："+err.message)}e.target.value=""};
+  reader.readAsArrayBuffer(file)}
+
+// ═══ INIT ═══════════════════════════════════════════════════════════
+document.querySelectorAll(".tab-btn").forEach(b=>b.addEventListener("click",()=>swTab(b.dataset.tab)));
+initState();load();ensureProg();initThemes();render();
+</script>
+</body>
+</html>
