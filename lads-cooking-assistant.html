@@ -374,8 +374,9 @@ el.innerHTML=`
     ・選擇要製作的<span class="key">風味</span>（原味或特殊風味），選擇風味會額外消耗對應的調味粉<br>
     ・每項食材可以選擇消耗<span class="key">哪個星級</span>的庫存，預設使用最高星級<br>
     ・泛用類別（肉類、蔬菜類等）可以選擇使用哪個具體食材<br>
-    ・確認後自動扣除庫存、更新已達星級（如果比之前高）、解鎖風味</div></div>
-  <div class="tip">預估成品星級僅根據投入食材的最低星級推算，實際星級受機率影響。調味粉星級不計入成品星級計算。</div>
+    ・填入遊戲中<span class="key">實際獲得的星級</span>（點擊星星），如果比目前記錄高會自動更新<br>
+    ・確認後自動扣除庫存、更新已達星級、解鎖風味</div></div>
+  <div class="tip">建議流程：先在遊戲中製作菜品 → 看到結果星級 → 再來工具點「製作一份」記錄消耗和星級。</div>
 </div>
 
 <div class="help-section">
@@ -576,11 +577,11 @@ function deletePM(id){if(profiles.length<=1){alert("至少保留一個存檔");r
   profiles=profiles.filter(x=>x.id!==id);if(activeId===id){activeId=profiles[0].id;initState();load();ensureProg();render()}saveProfiles();showMgmt()}
 
 // ═══ COOK MODAL ═════════════════════════════════════════════════════
-let cookState=null; // {recipe, slots:[{name,star,options,fixed?,catLabel?}], flavor:"原味"}
+let cookState=null; // {recipe, slots:[...], flavor:"原味", resultStar:0}
 
 function showCook(recipeName){
   const r=allRec().find(x=>x.name===recipeName);if(!r)return;
-  cookState={recipe:r,slots:[],flavor:"原味"};
+  cookState={recipe:r,slots:[],flavor:"原味",resultStar:0};
   buildCookSlots();
   renderCookModal();
 }
@@ -652,8 +653,6 @@ function renderCookModal(){
 
   const ingSlots=slots.filter(s=>!s.isPowder);
   const powderSlot=slots.find(s=>s.isPowder);
-  const minStar=ingSlots.filter(s=>!s.fixed).map(s=>s.star);
-  const estStar=minStar.length?Math.min(...minStar):0;
 
   let h=`<div class="mbg" onclick="if(event.target===this){cookState=null;clM()}"><div class="modal">`;
   h+=`<h2>🍳 製作一份：${recipe.name}</h2>`;
@@ -704,7 +703,9 @@ function renderCookModal(){
     h+=`</div></div>`;
   }
 
-  h+=`<div class="cook-est">預估成品星級：<b>${estStar===0?"☆":"★".repeat(estStar)}</b>（受機率影響，僅供參考）</div>`;
+  h+=`<div class="cook-est"><div style="margin-bottom:6px">實際獲得星級（在遊戲中確認後填入）</div><div style="display:flex;align-items:center;justify-content:center;gap:2px">`;
+  for(let i=1;i<=5;i++)h+=`<button class="sb" style="font-size:22px" onclick="cookState.resultStar=${i};renderCookModal()">${i<=cookState.resultStar?"⭐":"☆"}</button>`;
+  h+=`<button style="border:none;background:none;cursor:pointer;font-size:12px;color:#aaa;margin-left:8px;font-family:inherit" onclick="cookState.resultStar=0;renderCookModal()">清除</button></div></div>`;
 
   const canCook=ingSlots.every(s=>s.fixed||s.options.some(o=>o.name===s.name))&&(!powderSlot||powderSlot.options.length>0);
   h+=`<div class="mbtns"><button class="mb p"${canCook?"":" disabled style='opacity:.5;cursor:not-allowed'"} onclick="doCook()">✅ 確認製作</button><button class="mb s" onclick="cookState=null;clM()">取消</button></div>`;
@@ -739,12 +740,9 @@ function doCook(){
     const it=bi||ci;
     if(it)it.s[s.star]=Math.max(0,(it.s[s.star]||0)-1);
   }
-  // Auto update star level (based on ingredient slots only, not powder)
-  const ingSlots=slots.filter(s=>!s.fixed&&!s.isPowder);
-  const minStar=ingSlots.map(s=>s.star);
-  const achieved=minStar.length?Math.min(...minStar):0;
+  // Update star level from user input
   const p=gP(recipe.name);
-  if(achieved>p.maxStar)p.maxStar=achieved;
+  if(cookState.resultStar>p.maxStar)p.maxStar=cookState.resultStar;
   // Auto unlock flavor if making a flavored dish
   if(flavor!=="原味"&&!p.unlocked.includes(flavor))p.unlocked.push(flavor);
   save();cookState=null;clM();render();
