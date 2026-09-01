@@ -191,7 +191,7 @@ const BUILTIN_REC=[
   ["白粥","主食","水,大米",""],["清湯麵","主食","水,麵粉","爆辣,清苦"],["蛋炒飯","主食","雞蛋,大米","爆辣,鮮香"],["雞蛋麵","主食","水,麵粉,雞蛋","爆辣,鮮香"],
   ["鍋巴","主食","大米","爆辣,鮮香"],["鮮肉餃子","主食","麵粉,肉類","鮮香"],["番茄雞蛋麵","主食","水,麵粉,番茄,雞蛋","爆辣,酸甜,鮮香"],
   ["菜包","主食","麵粉,酵母,菜餡類",""],["肉包","主食","麵粉,酵母,肉類",""],["玉米粥","主食","大米,水,玉米","酸甜"],["雞肉粥","主食","大米,水,雞肉","清苦,鮮香"],
-  ["雞湯餛飩","主食","水,雞肉,麵粉,肉類(豬肉或牛肉)","清苦,鮮香"],["牛奶拌麵","主食","牛奶,麵粉","果香,酸甜,鮮香"],["海鮮粥","主食","大米,水,水產海鮮類","爆辣,鮮香"],
+  ["雞湯餛飩","主食","水,雞肉,麵粉,肉類(豬肉或牛肉)","清苦,鮮香"],["牛奶拌麵","主食","牛奶,麵粉","果香,酸甜,鮮香"],["海鮮粥","主食","大米,水,水產海鮮類","鮮香"],
   ["汽水泡麵","主食","小蘇打,麵粉,水","爆辣,酸甜,鮮香"],["什錦炒飯","主食","大米,蝦,玉米,紅蘿蔔","爆辣,鮮香"],["無米炒飯","主食","雞蛋,紅蘿蔔,馬鈴薯","爆辣,鮮香"],
   ["咖哩飯","主食","咖哩,大米","爆辣,鮮香"],["咖哩雞肉飯","主食","咖哩,大米,雞肉","爆辣,鮮香"],["鮮肉月餅","主食","月餅皮,豬肉","爆辣,鮮香"],
   ["豆沙月餅","主食","月餅皮,紅豆","果香,酸甜"],["豆沙包","主食","麵粉,酵母,紅豆","果香,清苦"],["鮮肉湯圓","主食","糯米,豬肉,水","爆辣,鮮香"],
@@ -349,11 +349,11 @@ function rInv(){const el=document.getElementById("tab-inventory");const CC=getCC
   h+=`<div class="fbar"><input class="sbox" value="${sTxt}" oninput="sTxt=this.value;render()" placeholder="搜尋食材⋯"></div>`;
   if(!items.length)h+=`<div class="empty">沒有符合條件的食材</div>`;
   else{h+=`<div class="igrid">`;for(const it of items){const t=tot(it.s),co=CC[it.c]||"#999",ic=CI_[it.c]||"📦",ex=expT===it.n;
-    const si=t>0?[5,4,3,2,1].filter(l=>it.s[l]>0).map(l=>`${strs(l)}×${it.s[l]}`).join(" "):"";
+    const maxLv=it.c==="調味粉"?3:5;const si=t>0?[...Array(maxLv)].map((_,i)=>maxLv-i).filter(l=>it.s[l]>0).map(l=>`${strs(l)}×${it.s[l]}`).join(" "):"";
     h+=`<div class="tile ${t>0?"has":"emp"}" style="border-color:${t>0?co:"var(--bdr)"}"><div class="tile-h" onclick="expT=expT==='${it.n}'?null:'${it.n}';render()">`;
     h+=`<span class="tile-ic">${ic}</span><div class="tile-i"><div class="tile-nm">${it.n}${it.flavor?`<span class="ft">(${it.flavor})</span>`:""}</div>`;
     h+=`<div class="tile-sub">共 ${t} 個${si?`<span class="tile-st">${si}</span>`:""}</div></div><span class="tile-ar${ex?" o":""}">▼</span></div>`;
-    if(ex){h+=`<div class="tile-d">`;for(let l=5;l>=1;l--)h+=`<div class="sr"><span class="sl">${strs(l)}</span><button class="ab" onclick="adjS('${it.n}',${l},-1)"${(it.s[l]||0)<=0?" disabled":""}>−</button><span class="sc">${it.s[l]||0}</span><button class="ab" onclick="adjS('${it.n}',${l},1)">+</button></div>`;
+    if(ex){h+=`<div class="tile-d">`;const maxLv=it.c==="調味粉"?3:5;for(let l=maxLv;l>=1;l--)h+=`<div class="sr"><span class="sl">${strs(l)}</span><button class="ab" onclick="adjS('${it.n}',${l},-1)"${(it.s[l]||0)<=0?" disabled":""}>−</button><span class="sc">${it.s[l]||0}</span><button class="ab" onclick="adjS('${it.n}',${l},1)">+</button></div>`;
       if(it.custom)h+=`<button class="mb d" style="margin-top:8px;font-size:11px;padding:5px 12px" onclick="delIng('${it.n}')">刪除此食材</button>`;
       h+=`</div>`}h+=`</div>`}h+=`</div>`}
   el.innerHTML=h}
@@ -389,7 +389,7 @@ function rRec(){const el=document.getElementById("tab-recipes");const RI=getRI()
     else if(p.maxStar>0)h+=`<span style="font-size:10px;color:#b8960c">${strs(p.maxStar)}</span>`;
     h+=`</div></div>`;
     h+=`<div class="rc-ig">食材：${r.ingRaw.split(",").map(g=>{g=g.trim();return`<span${missing.includes(g)?` class="ms"`:``}>${g}</span>`}).join("、")}</div>`;
-    if(ok&&bs>0)h+=`<div class="rc-bs">現有最高可達 <b>${strs(bs)}</b></div>`;
+    if(ok&&bs>0)h+=`<div class="rc-bs">食材最高 <b>${strs(bs)}</b>（星級受機率影響，僅供參考）</div>`;
     h+=`<div class="rc-ed"><div class="rc-sr"><span class="lb">已達星級</span>`;
     for(let i=1;i<=5;i++)h+=`<button class="sb" onclick="setStar('${r.name}',${i})">${i<=p.maxStar?"⭐":"☆"}</button>`;
     h+=`</div>`;
