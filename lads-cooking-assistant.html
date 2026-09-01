@@ -234,7 +234,7 @@ function getCI(){const m={...CI_};customIng.forEach(i=>{if(!m[i.c])m[i.c]="📦"
 function getRI(){const m={...RI_};customRec.forEach(r=>{if(!m[r.cat])m[r.cat]="🍽️"});return m}
 
 function initState(){
-  inv=BUILTIN_ING.map(d=>({...d,s:{5:0,4:0,3:0,2:0,1:0}}));prog={};customIng=[];customRec=[];
+  inv=BUILTIN_ING.map(d=>{const s=d.c==="調味粉"?{3:0,2:0,1:0,0:0}:{5:0,4:0,3:0,2:0,1:0};return{...d,s}});prog={};customIng=[];customRec=[];
   allRec().forEach(r=>{if(!prog[r.name])prog[r.name]={maxStar:0,unlocked:[]}});
 }
 function save(){try{localStorage.setItem('lads-inv',JSON.stringify(inv));localStorage.setItem('lads-prog',JSON.stringify(prog));localStorage.setItem('lads-cing',JSON.stringify(customIng));localStorage.setItem('lads-crec',JSON.stringify(customRec))}catch(e){}}
@@ -349,11 +349,13 @@ function rInv(){const el=document.getElementById("tab-inventory");const CC=getCC
   h+=`<div class="fbar"><input class="sbox" value="${sTxt}" oninput="sTxt=this.value;render()" placeholder="搜尋食材⋯"></div>`;
   if(!items.length)h+=`<div class="empty">沒有符合條件的食材</div>`;
   else{h+=`<div class="igrid">`;for(const it of items){const t=tot(it.s),co=CC[it.c]||"#999",ic=CI_[it.c]||"📦",ex=expT===it.n;
-    const maxLv=it.c==="調味粉"?3:5;const si=t>0?[...Array(maxLv)].map((_,i)=>maxLv-i).filter(l=>it.s[l]>0).map(l=>`${strs(l)}×${it.s[l]}`).join(" "):"";
+    const isPowder=it.c==="調味粉";const maxLv=isPowder?3:5;const minLv=isPowder?0:1;
+    const lvs=[];for(let l=maxLv;l>=minLv;l--)lvs.push(l);
+    const si=t>0?lvs.filter(l=>(it.s[l]||0)>0).map(l=>`${l===0?"☆":strs(l)}×${it.s[l]}`).join(" "):"";
     h+=`<div class="tile ${t>0?"has":"emp"}" style="border-color:${t>0?co:"var(--bdr)"}"><div class="tile-h" onclick="expT=expT==='${it.n}'?null:'${it.n}';render()">`;
     h+=`<span class="tile-ic">${ic}</span><div class="tile-i"><div class="tile-nm">${it.n}${it.flavor?`<span class="ft">(${it.flavor})</span>`:""}</div>`;
     h+=`<div class="tile-sub">共 ${t} 個${si?`<span class="tile-st">${si}</span>`:""}</div></div><span class="tile-ar${ex?" o":""}">▼</span></div>`;
-    if(ex){h+=`<div class="tile-d">`;const maxLv=it.c==="調味粉"?3:5;for(let l=maxLv;l>=1;l--)h+=`<div class="sr"><span class="sl">${strs(l)}</span><button class="ab" onclick="adjS('${it.n}',${l},-1)"${(it.s[l]||0)<=0?" disabled":""}>−</button><span class="sc">${it.s[l]||0}</span><button class="ab" onclick="adjS('${it.n}',${l},1)">+</button></div>`;
+    if(ex){h+=`<div class="tile-d">`;for(let l=maxLv;l>=minLv;l--)h+=`<div class="sr"><span class="sl">${l===0?"☆ 無星":strs(l)}</span><button class="ab" onclick="adjS('${it.n}',${l},-1)"${(it.s[l]||0)<=0?" disabled":""}>−</button><span class="sc">${it.s[l]||0}</span><button class="ab" onclick="adjS('${it.n}',${l},1)">+</button></div>`;
       if(it.custom)h+=`<button class="mb d" style="margin-top:8px;font-size:11px;padding:5px 12px" onclick="delIng('${it.n}')">刪除此食材</button>`;
       h+=`</div>`}h+=`</div>`}h+=`</div>`}
   el.innerHTML=h}
@@ -485,9 +487,9 @@ function clM(){document.getElementById("mroot").innerHTML=""}
 function doReset(){if(!confirm("確定清除所有資料？"))return;initState();save();clM();render()}
 
 function dlTpl(){const wb=XLSX.utils.book_new();
-  const d1=[["食材名稱","分類","5星庫存","4星庫存","3星庫存","2星庫存","1星庫存"]];
-  allIng().forEach(i=>d1.push([i.n+(i.flavor?`(${i.flavor})`:""),i.c,0,0,0,0,0]));
-  const ws1=XLSX.utils.aoa_to_sheet(d1);ws1["!cols"]=[{wch:16},{wch:10},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8}];
+  const d1=[["食材名稱","分類","5星庫存","4星庫存","3星庫存","2星庫存","1星庫存","0星庫存(僅調味粉)"]];
+  allIng().forEach(i=>{const ip=i.c==="調味粉";d1.push([i.n+(i.flavor?`(${i.flavor})`:""),i.c,ip?"—":0,ip?"—":0,0,ip?"—":0,ip?"—":0,ip?0:"—"])});
+  const ws1=XLSX.utils.aoa_to_sheet(d1);ws1["!cols"]=[{wch:16},{wch:10},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:16}];
   XLSX.utils.book_append_sheet(wb,ws1,"食材庫存");
   const d2=[["菜品名稱","分類","食材需求","已達最高星級(0-5)","清苦","爆辣","果香","酸甜","鮮香"]];
   allRec().forEach(r=>{const row=[r.name,r.cat,r.ingRaw,0];ALL_FLAVORS.forEach(f=>row.push(r.allFlavors.includes(f)?"未解鎖":"—"));d2.push(row)});
@@ -496,9 +498,9 @@ function dlTpl(){const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws2,"食譜進度");XLSX.writeFile(wb,"廚藝助手_空白範本.xlsx")}
 
 function dlCur(){const wb=XLSX.utils.book_new();
-  const d1=[["食材名稱","分類","5星庫存","4星庫存","3星庫存","2星庫存","1星庫存"]];
-  allIng().forEach(i=>d1.push([i.n+(i.flavor?`(${i.flavor})`:""),i.c,i.s[5]||0,i.s[4]||0,i.s[3]||0,i.s[2]||0,i.s[1]||0]));
-  const ws1=XLSX.utils.aoa_to_sheet(d1);ws1["!cols"]=[{wch:16},{wch:10},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8}];
+  const d1=[["食材名稱","分類","5星庫存","4星庫存","3星庫存","2星庫存","1星庫存","0星庫存(僅調味粉)"]];
+  allIng().forEach(i=>{const ip=i.c==="調味粉";d1.push([i.n+(i.flavor?`(${i.flavor})`:""),i.c,ip?"—":(i.s[5]||0),ip?"—":(i.s[4]||0),i.s[3]||0,ip?"—":(i.s[2]||0),ip?"—":(i.s[1]||0),ip?(i.s[0]||0):"—"])});
+  const ws1=XLSX.utils.aoa_to_sheet(d1);ws1["!cols"]=[{wch:16},{wch:10},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:16}];
   XLSX.utils.book_append_sheet(wb,ws1,"食材庫存");
   const d2=[["菜品名稱","分類","食材需求","已達最高星級(0-5)","清苦","爆辣","果香","酸甜","鮮香"]];
   allRec().forEach(r=>{const p=gP(r.name);const row=[r.name,r.cat,r.ingRaw,p.maxStar];ALL_FLAVORS.forEach(f=>row.push(!r.allFlavors.includes(f)?"—":p.unlocked.includes(f)?"已解鎖":"未解鎖"));d2.push(row)});
@@ -512,6 +514,7 @@ function doImport(e){const file=e.target.files[0];if(!file)return;const reader=n
     if(sn1){XLSX.utils.sheet_to_json(wb.Sheets[sn1]).forEach(row=>{
       const rn=String(row["食材名稱"]||"").replace(/\(.+?\)$/,"").trim();const it=allIng().find(i=>i.n===rn);
       if(it){it.s[5]=Number(row["5星庫存"])||0;it.s[4]=Number(row["4星庫存"])||0;it.s[3]=Number(row["3星庫存"])||0;it.s[2]=Number(row["2星庫存"])||0;it.s[1]=Number(row["1星庫存"])||0;
+        if(it.c==="調味粉"){it.s[0]=Number(row["0星庫存(僅調味粉)"])||0;it.s[5]=0;it.s[4]=0;it.s[2]=0;it.s[1]=0}
         const bi=inv.find(i=>i.n===rn);if(bi)bi.s={...it.s};const ci=customIng.find(i=>i.n===rn);if(ci)ci.s={...it.s};n++}})}
     const sn2=wb.SheetNames.find(s=>s.includes("食譜"));
     if(sn2){XLSX.utils.sheet_to_json(wb.Sheets[sn2]).forEach(row=>{
