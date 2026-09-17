@@ -519,36 +519,65 @@ function rProg(){const el=document.getElementById("tab-progress");const ar=allRe
     }
   });
 
-  // Recipes not yet at 5 stars - ingredient needs
-  h+=`<div style="font-size:13px;font-weight:600;margin:14px 0 8px;color:var(--acD)">🍳 未滿星菜品食材需求</div>`;
+  // Recipes not yet at 5 stars - 5-star ingredient needs
+  h+=`<div style="font-size:13px;font-weight:600;margin:14px 0 8px;color:var(--acD)">⭐ 五星食材需求（滿星圖鑑）</div>`;
   const notFive=ar.filter(r=>gP(r.name).maxStar<5);
   if(!notFive.length){
     h+=`<div style="font-size:12px;color:#6BA368;padding:8px 0">🎉 所有菜品都已滿星！</div>`;
   } else {
-    // Count how many times each ingredient is needed across all unmade/non-5-star recipes
-    const ingNeed={};
+    // Calculate 5-star demand per specific ingredient & per category
+    const specNeed={};// specific ingredient -> count of 5★ needed
+    const catNeed={};// category -> count of 5★ needed
     notFive.forEach(r=>{
       r.ingredients.forEach(req=>{
         if(req.type==="sp"){
-          if(req.name!=="水")ingNeed[req.name]=(ingNeed[req.name]||0)+1;
+          if(req.name!=="水")specNeed[req.name]=(specNeed[req.name]||0)+1;
         } else {
-          const label=req.cat||"?";
-          ingNeed[label]=(ingNeed[label]||0)+1;
+          const cat=req.cat||"?";
+          catNeed[cat]=(catNeed[cat]||0)+1;
         }
       });
     });
-    // Sort by most needed
-    const sorted=Object.entries(ingNeed).sort((a,b)=>b[1]-a[1]);
-    const topN=sorted.slice(0,12);
-    h+=`<div style="font-size:11px;color:#aaa;margin-bottom:6px">${notFive.length} 道菜品未達五星，最常需要的食材：</div>`;
-    topN.forEach(([name,count])=>{
-      const it=ai.find(i=>i.n===name);const stock=it?tot(it.s):0;
-      const isCat=!!CMAP[name];
-      h+=`<div class="pr"><span class="ic" style="font-size:14px">${isCat?"📂":"🥘"}</span><span class="nm">${name}</span>`;
-      h+=`<span class="st">需 ${count} 次</span>`;
-      if(!isCat)h+=`<span class="st">庫存 ${stock}</span>`;
-      h+=`</div>`;
+
+    h+=`<div style="font-size:11px;color:#aaa;margin-bottom:8px">${notFive.length} 道菜品未達五星，要全部做到五星需要以下五星食材：</div>`;
+
+    // Specific ingredients
+    const specSorted=Object.entries(specNeed).sort((a,b)=>b[1]-a[1]);
+    specSorted.forEach(([name,need])=>{
+      const it=ai.find(i=>i.n===name);
+      const star5=it?(it.s[5]||0):0;
+      const shortfall=Math.max(0,need-star5);
+      h+=`<div class="pr"><span class="ic" style="font-size:14px">🥘</span><span class="nm">${name}</span>`;
+      h+=`<span class="st">需 ${need} 個</span><span class="st">現有★5：${star5}</span>`;
+      h+=`<span class="st" style="color:${shortfall>0?"#D94F3B":"#6BA368"};font-weight:700">${shortfall>0?`差 ${shortfall}`:"✓"}</span></div>`;
     });
+
+    // Category ingredients
+    if(Object.keys(catNeed).length){
+      h+=`<div style="font-size:12px;color:#888;margin:10px 0 6px;font-weight:600">泛用類別（任一該類五星食材皆可）</div>`;
+      Object.entries(catNeed).sort((a,b)=>b[1]-a[1]).forEach(([cat,need])=>{
+        const members=CMAP[cat]||[];
+        const memberStocks=members.map(m=>{const it=ai.find(i=>i.n===m);return{name:m,s5:it?(it.s[5]||0):0}});
+        const totalS5=memberStocks.reduce((a,m)=>a+m.s5,0);
+        const shortfall=Math.max(0,need-totalS5);
+        h+=`<div class="pr"><span class="ic" style="font-size:14px">📂</span><span class="nm">${cat}</span>`;
+        h+=`<span class="st">需 ${need} 個</span><span class="st">現有★5：${totalS5}</span>`;
+        h+=`<span class="st" style="color:${shortfall>0?"#D94F3B":"#6BA368"};font-weight:700">${shortfall>0?`差 ${shortfall}`:"✓"}</span></div>`;
+        // Show breakdown per member
+        const detail=memberStocks.filter(m=>m.s5>0).map(m=>`${m.name}×${m.s5}`).join("、");
+        if(detail)h+=`<div style="padding:0 0 4px 40px;font-size:11px;color:#aaa">明細：${detail}</div>`;
+        if(shortfall>0){
+          const zeroMembers=memberStocks.filter(m=>m.s5===0).map(m=>m.name).join("、");
+          if(zeroMembers)h+=`<div style="padding:0 0 4px 40px;font-size:11px;color:#D94F3B">缺五星：${zeroMembers}</div>`;
+        }
+      });
+    }
+
+    // Summary
+    const totalSpecShort=specSorted.reduce((a,[name,need])=>{const it=ai.find(i=>i.n===name);return a+Math.max(0,need-(it?(it.s[5]||0):0))},0);
+    const totalCatShort=Object.entries(catNeed).reduce((a,[cat,need])=>{const members=CMAP[cat]||[];const s5=members.reduce((a2,m)=>{const it=ai.find(i=>i.n===m);return a2+(it?(it.s[5]||0):0)},0);return a+Math.max(0,need-s5)},0);
+    const totalShort=totalSpecShort+totalCatShort;
+    h+=`<div style="margin-top:10px;padding:10px;background:var(--pill);border-radius:8px;font-size:12px;text-align:center;color:${totalShort>0?"#D94F3B":"#6BA368"};font-weight:600">${totalShort>0?`總計還需要刷 ${totalShort} 個五星食材`:"🎉 五星食材已足夠，全力做菜吧！"}</div>`;
   }
 
   h+=`</div>`;
