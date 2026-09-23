@@ -350,8 +350,8 @@ el.innerHTML=`
 <div class="help-section">
   <h3><span>👋</span>歡迎使用廚藝助手</h3>
   <p>這是一個為《戀與深空》家園廚藝系統設計的食譜蒐集追蹤工具。你可以管理食材庫存、追蹤食譜解鎖進度、快速找到現在能做什麼菜來推進蒐集成就。</p>
-  <p>目前資料更新至<span class="key">廚藝等級 Lv14</span>（2026/9/23），後續更新的菜品和食材可以透過「自訂」功能手動新增。</p>
-  <div class="tip">所有資料自動儲存在瀏覽器的 localStorage 中，只要不清除瀏覽器資料就會一直保留。建議定期用「導出備份」保存一份 Excel 以防萬一。</div>
+  <p>目前內建資料更新至<span class="key">廚藝等級 Lv14</span>（2026/9/23）。遊戲版本更新時，內建食譜和食材會由開發者直接更新 HTML 檔案，届時下載新版即可，你的庫存和進度資料不受影響（存在瀏覽器中）。</p>
+  <div class="tip">所有資料自動儲存在瀏覽器的 localStorage 中，只要不清除瀏覽器資料就會一直保留。建議定期用「導出備份」保存一份 Excel 以防萬一。更換瀏覽器或裝置時，用導出＋導入即可遷移資料。</div>
 </div>
 
 <div class="help-section">
@@ -360,69 +360,67 @@ el.innerHTML=`
   <div class="step"><div class="step-num">1</div><div class="step-txt">透過上方的<span class="key">分類標籤</span>或<span class="key">搜尋框</span>快速找到食材。</div></div>
   <div class="step"><div class="step-num">2</div><div class="step-txt">點擊食材卡片展開，可以看到各星級的庫存數量。</div></div>
   <div class="step"><div class="step-num">3</div><div class="step-txt">使用<span class="key">＋</span>和<span class="key">−</span>按鈕手動調整每個星級的數量。</div></div>
-  <div class="tip">「水」為無限供應的食材，不需要管理庫存。一般食材星級為 ★～★★★★★，調味粉星級為 ☆（無星）～★★★。</div>
+  <div class="tip">「水」為無限供應，不需要管理。一般食材星級範圍 ★～★★★★★，調味粉為 ☆（無星）～★★★。調味粉是否影響成品星級目前未知。</div>
 </div>
 
 <div class="help-section">
   <h3><span>🍳</span>食譜篩選與製作</h3>
-  <p>根據你的庫存即時篩選可以製作的菜品，並直接在卡片上更新解鎖進度或製作菜品。</p>
+  <p>根據庫存即時篩選可製作的菜品，支援四種智慧排序，並可直接在卡片上記錄進度。</p>
   <div class="step"><div class="step-num">1</div><div class="step-txt"><span class="key">分類篩選</span>：按主食、配菜、湯羹、甜點、飲品過濾。</div></div>
-  <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">狀態篩選</span>：可製作（庫存足夠）、缺食材、未滿星、有未解鎖風味。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">狀態篩選</span>：可製作 / 缺食材 / 未滿星 / 有未解鎖風味，快速聚焦需要關注的菜品。</div></div>
   <div class="step"><div class="step-num">3</div><div class="step-txt"><span class="key">排序方式</span>：<br>
-    ・預設排序：按原始順序<br>
-    ・升星優先：把「目前低星但庫存能做更高星」的菜排前面，標示<span class="key">可升N星</span><br>
-    ・可解鎖風味優先：根據你有的調味粉，把能解鎖最多新風味的菜排前面<br>
-    ・名稱排序：按筆劃排列</div></div>
-  <div class="step"><div class="step-num">4</div><div class="step-txt"><span class="key">手動更新進度</span>：每張食譜卡片底部可以直接點擊星星設定已達星級，點擊風味標籤切換解鎖狀態。<br>
-    ・🔓 表示你有對應的調味粉，可以解鎖<br>
-    ・🔒 表示缺少調味粉</div></div>
-  <div class="step"><div class="step-num">5</div><div class="step-txt"><span class="key">🍳 製作一份</span>：庫存足夠的菜品右下角會出現此按鈕，點擊後彈窗確認：<br>
-    ・選擇要製作的<span class="key">風味</span>（原味或特殊風味），選擇風味會額外消耗對應的調味粉<br>
-    ・每項食材可以選擇消耗<span class="key">哪個星級</span>的庫存，預設使用最高星級<br>
-    ・泛用類別（肉類、蔬菜類等）可以選擇使用哪個具體食材<br>
-    ・填入遊戲中<span class="key">實際獲得的星級</span>（點擊星星），如果比目前記錄高會自動更新<br>
-    ・確認後自動扣除庫存、更新已達星級、解鎖風味</div></div>
-  <div class="tip">建議流程：先在遊戲中製作菜品 → 看到結果星級 → 再來工具點「製作一份」記錄消耗和星級。</div>
+    ・<span class="key">升星優先</span>：把「目前低星但庫存食材能衝更高星」的菜排前面，標示可升幾星<br>
+    ・<span class="key">可解鎖風味優先</span>：根據你有的調味粉，把能解鎖最多新風味的菜排前面。所有調味粉庫存為 0 時會顯示提醒<br>
+    ・<span class="key">名稱排序</span>：按筆劃排列</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-txt"><span class="key">手動更新進度</span>：每張卡片底部可以直接點星星設定已達星級，點風味標籤切換解鎖狀態。<br>
+    ・🔓 有對應調味粉可以解鎖　・🔒 缺少調味粉</div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-txt"><span class="key">🍳 製作一份</span>：庫存足夠的菜品右下角會出現此按鈕。<br><br>
+    <b>建議流程</b>：先在遊戲中製作菜品 → 看到結果 → 再來工具記錄。<br><br>
+    點擊後彈窗可以：<br>
+    ・選擇<span class="key">製作風味</span>（原味或特殊風味），選擇風味會額外消耗對應調味粉<br>
+    ・調整每項食材要消耗<span class="key">哪個星級</span>的庫存（預設最高星級），泛用類別可選擇具體食材<br>
+    ・填入遊戲中<span class="key">實際獲得的星級</span>（點擊星星），比目前記錄高時會自動更新<br>
+    ・確認後一鍵扣除庫存、更新星級、解鎖風味</div></div>
 </div>
 
 <div class="help-section">
-  <h3><span>📊</span>蒐集進度</h3>
-  <p>總覽你的整體蒐集狀況，包含現可製作數、滿星菜品數、風味解鎖數，以及各分類和食材庫存的細項統計。</p>
+  <h3><span>📊</span>蒐集進度與圖鑑需求</h3>
+  <p>總覽蒐集狀況和完成圖鑑還需要什麼。</p>
+  <div class="step"><div class="step-num">1</div><div class="step-txt"><span class="key">整體數據</span>：現可製作數、滿星菜品數、風味解鎖率、菜品總數，各附進度條。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">各分類進度</span>：每個菜品分類的可製作數和五星數。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-txt"><span class="key">食材庫存總覽</span>：各分類有幾種食材有庫存、總數量。</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-txt"><span class="key">🧂 調味粉需求</span>：計算每種調味粉還需要幾個才能解鎖所有風味，列出差額和對應的待解鎖菜品。方便規劃要種多少調味料。</div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-txt"><span class="key">⭐ 五星食材需求</span>：計算要把所有菜品做到五星，每種食材還差幾個五星的。泛用類別會展開明細，告訴你哪些成員有五星、哪些缺。底部有總計還需刷多少個五星食材。</div></div>
 </div>
 
 <div class="help-section">
   <h3><span>📁</span>存檔管理</h3>
-  <p>支援多帳號存檔、Excel 導入導出，統一在右上角<span class="key">📁 存檔管理</span>按鈕中操作。</p>
-  <div class="step"><div class="step-num">1</div><div class="step-txt"><span class="key">多帳號存檔</span>：可以建立多個存檔（例如大號、小號），每個存檔的庫存和食譜進度完全獨立。點擊存檔即可切換，切換時會自動儲存當前資料。</div></div>
-  <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">重命名 / 刪除</span>：每個存檔旁有 ✏️ 重命名和 🗑️ 刪除按鈕，至少保留一個存檔。</div></div>
-  <div class="step"><div class="step-num">3</div><div class="step-txt"><span class="key">下載空白範本</span>：取得格式正確的 Excel 檔案，包含「食材庫存」和「食譜進度」兩個工作表。食材庫存填入各星級數量，食譜進度設定已達星級（0-5 下拉）和風味解鎖狀態（已解鎖/未解鎖 下拉）。</div></div>
-  <div class="step"><div class="step-num">4</div><div class="step-txt"><span class="key">導入 Excel</span>：選擇填好的檔案導入，會覆蓋<b>目前存檔</b>的資料。</div></div>
-  <div class="step"><div class="step-num">5</div><div class="step-txt"><span class="key">導出備份</span>：將目前存檔的所有資料導出為 Excel，檔名自動帶上日期。</div></div>
-  <div class="tip">導入/導出只會影響目前使用中的存檔，不會動到其他存檔的資料。目前使用的存檔名稱會顯示在標題列。</div>
+  <p>右上角<span class="key">📁 存檔管理</span>按鈕統一管理多帳號和資料導入導出。</p>
+  <div class="step"><div class="step-num">1</div><div class="step-txt"><span class="key">多帳號存檔</span>：可建立多個存檔（例如大號、小號），庫存和進度完全獨立。點擊即時切換，自動儲存當前資料。每個存檔可重命名或刪除。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">下載空白範本</span>：取得格式化的 Excel，食材庫存頁填各星級數量，食譜進度頁設已達星級和風味解鎖狀態（有下拉選單）。</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-txt"><span class="key">導入 Excel</span>：選擇填好的檔案導入，覆蓋<b>目前使用中的存檔</b>。</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-txt"><span class="key">導出備份</span>：將目前存檔的庫存和進度導出為 Excel（含自訂項目），檔名帶日期。</div></div>
+  <div class="tip">導入/導出只影響目前存檔。目前使用的存檔名稱顯示在標題列。更換裝置或瀏覽器時，用導出→導入遷移資料。</div>
 </div>
 
 <div class="help-section">
   <h3><span>✨</span>自訂新增</h3>
-  <p>廚藝等級超過 Lv12 或版本更新後的新菜品和食材，可以手動新增。</p>
-  <div class="step"><div class="step-num">1</div><div class="step-txt">點擊右上角<span class="key">＋ 自訂</span>按鈕，選擇新增食材或新增菜品。</div></div>
-  <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">新增食材</span>：輸入名稱並選擇分類（也可以新建分類）。</div></div>
-  <div class="step"><div class="step-num">3</div><div class="step-txt"><span class="key">新增菜品</span>：輸入名稱、選擇分類、填寫食材需求（逗號分隔），勾選可解鎖的風味。<br>
-    食材需求支援泛用類別寫法：<br>
-    ・<span class="key">肉類</span>＝豬肉/雞肉/鴨肉/牛肉任一<br>
-    ・<span class="key">蔬菜類</span>＝所有蔬菜豆品任一<br>
-    ・<span class="key">水果類</span>＝蘋果/葡萄/檸檬任一<br>
-    ・<span class="key">水產海鮮類</span>＝蝦/魚任一<br>
-    ・限定寫法：<span class="key">肉類(豬肉或牛肉)</span></div></div>
-  <div class="step"><div class="step-num">4</div><div class="step-txt">自訂項目會標示<span class="key">自訂</span>標籤，展開後可刪除。自訂資料同樣會包含在 Excel 導出中。</div></div>
+  <p>右上角<span class="key">＋ 自訂</span>可以手動新增食材或菜品，適合臨時補充尚未納入內建資料的新內容。</p>
+  <div class="step"><div class="step-num">1</div><div class="step-txt"><span class="key">新增食材</span>：輸入名稱，選擇或新建分類。</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-txt"><span class="key">新增菜品</span>：輸入名稱、選分類、填食材需求（逗號分隔）、勾選可解鎖風味。<br>
+    支援泛用類別：<span class="key">肉類</span>、<span class="key">蔬菜類</span>、<span class="key">水果類</span>、<span class="key">水產海鮮類</span>、<span class="key">菜餡類</span><br>
+    限定寫法：<span class="key">肉類(豬肉或牛肉)</span></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-txt">自訂項目標示<span class="key">自訂</span>標籤，可隨時刪除。庫存和進度資料會包含在 Excel 導出中。</div></div>
+  <div class="tip">自訂項目僅存在瀏覽器中。遊戲大版本更新時建議等 HTML 檔案更新內建資料，比手動新增更穩定。</div>
 </div>
 
 <div class="help-section">
   <h3><span>🎨</span>主題色切換</h3>
-  <p>右上角六個彩色圓點可以切換介面主題色，選擇會自動記住。所有頁面的配色（背景、邊框、標籤、按鈕）會跟著主題色自動調整。</p>
+  <p>右上角六個彩色圓點切換介面配色，選擇會自動記住。全頁面的背景、邊框、標籤、按鈕都會跟著調整。</p>
 </div>
 
 <div class="help-section" style="text-align:center;color:#bbb;font-size:12px;box-shadow:none;background:transparent">
-  Made with ❤️ for 戀與深空<br>有問題或建議歡迎回饋
+  Made with ❤️ for 戀與深空
 </div>
 `}
 
